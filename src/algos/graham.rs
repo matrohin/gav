@@ -1,5 +1,7 @@
 use crate::algos::Algo;
 use crate::common::*;
+use crate::draw_utils::*;
+use raqote::{DrawTarget, SolidSource};
 
 pub struct Graham;
 
@@ -53,6 +55,25 @@ where
     }
 }
 
+const WHITE_COLOR: SolidSource = SolidSource {
+    r: 0xff,
+    g: 0xff,
+    b: 0xff,
+    a: 0xff,
+};
+const GREEN_COLOR: SolidSource = SolidSource {
+    r: 0,
+    g: 0xff,
+    b: 0,
+    a: 0xff,
+};
+fn draw_half(dt: &mut DrawTarget, left: &Vec<Point>, done: &Vec<Point>) {
+    for point in left {
+        draw_point(dt, point, WHITE_COLOR);
+    }
+    draw_path(dt, done, GREEN_COLOR);
+}
+
 impl Algo<State, Action> for Graham {
     fn first_state(mut points: Vec<Point>) -> State {
         points.sort_unstable_by(|a, b| b.x.partial_cmp(&a.x).unwrap());
@@ -81,5 +102,17 @@ impl Algo<State, Action> for Graham {
 
     fn is_final(state: &State) -> bool {
         state.left_upper.is_empty() && state.left_lower.is_empty()
+    }
+
+    fn draw_state(dt: &mut DrawTarget, state: &State) {
+        // TODO: draw transparent other half?
+        if !state.left_upper.is_empty() || state.lower.is_empty() {
+            draw_half(dt, &state.left_upper, &state.upper);
+        } else {
+            draw_half(dt, &state.left_lower, &state.lower);
+        };
+    }
+    fn draw_action(_dt: &mut DrawTarget, _action: &Action) {
+        // TODO: implement
     }
 }

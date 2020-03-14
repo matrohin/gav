@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 euclid = "0.20.7"
+minifb = "0.15.3"
+raqote = "0.7.14"
+rand = "0.7.3"
