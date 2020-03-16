@@ -56,10 +56,10 @@ where
     let mut was_key_down = false;
     let size = window.get_size();
     let mut dt = DrawTarget::new(size.0 as i32, size.1 as i32);
-    let transform = Transform::create_translation(1., 1.);
+    let transform = Transform::create_translation(1., -MAX_Y - 1.);
     let transform = transform.post_scale(
         (size.0 as f32) / (MAX_X + 2.0),
-        (size.0 as f32) / (MAX_Y + 2.0),
+        -(size.0 as f32) / (MAX_Y + 2.0),
     );
     dt.set_transform(&transform);
 
