@@ -7,23 +7,21 @@ use crate::algos::Algo;
 use crate::common::Point;
 use rand::{thread_rng, Rng};
 
-use std::{
-    fs::File,
-    io::{prelude::*, BufReader},
-    path::Path,
-};
-
 use minifb::{Key, Window, WindowOptions};
 use raqote::{DrawTarget, SolidSource, Transform};
 
+const MAX_X: f32 = 30.0;
+const MAX_Y: f32 = 30.0;
+
 fn random_points() -> Vec<Point> {
-    const N: usize = 30;
-    const X: f32 = 30.0;
-    const Y: f32 = 30.0;
+    const N: usize = 100;
     let mut rng = thread_rng();
     let mut res = Vec::with_capacity(N);
     for _ in 0..N {
-        res.push(Point::new(rng.gen_range(2., X), rng.gen_range(2., Y)));
+        res.push(Point::new(
+            rng.gen_range(0., MAX_X),
+            rng.gen_range(0., MAX_Y),
+        ));
     }
     res
 }
@@ -47,12 +45,8 @@ where
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
 
-fn show<TAlgo, TState, TAction>(
-    states: &Vec<TState>,
-    _actions: &Vec<TAction>,
-    max_x: f32,
-    max_y: f32,
-) where
+fn show<TAlgo, TState, TAction>(states: &Vec<TState>, _actions: &Vec<TAction>)
+where
     TAlgo: Algo<TState, TAction>,
     TState: Clone + std::fmt::Debug,
     TAction: Clone + std::fmt::Debug,
@@ -62,10 +56,12 @@ fn show<TAlgo, TState, TAction>(
     let mut was_key_down = false;
     let size = window.get_size();
     let mut dt = DrawTarget::new(size.0 as i32, size.1 as i32);
-    dt.set_transform(&Transform::create_scale(
-        (size.0 as f32) / max_x,
-        (size.0 as f32) / max_y,
-    ));
+    let transform = Transform::create_translation(1., 1.);
+    let transform = transform.post_scale(
+        (size.0 as f32) / (MAX_X + 2.0),
+        (size.0 as f32) / (MAX_Y + 2.0),
+    );
+    dt.set_transform(&transform);
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
@@ -96,17 +92,6 @@ fn show<TAlgo, TState, TAction>(
 fn main() {
     let points = random_points();
 
-    let max_x = points
-        .iter()
-        .map(|a| a.x)
-        .max_by(|a, b| a.partial_cmp(&b).unwrap())
-        .unwrap();
-    let max_y = points
-        .iter()
-        .map(|a| a.y)
-        .max_by(|a, b| a.partial_cmp(&b).unwrap())
-        .unwrap();
-
     let (states, actions) = all_states::<Graham, graham::State, graham::Action>(points);
-    show::<Graham, graham::State, graham::Action>(&states, &actions, max_x + 2.0, max_y + 2.0);
+    show::<Graham, graham::State, graham::Action>(&states, &actions);
 }
