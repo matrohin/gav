@@ -14,7 +14,7 @@ const MAX_X: f32 = 30.0;
 const MAX_Y: f32 = 30.0;
 
 fn random_points() -> Vec<Point> {
-    const N: usize = 100;
+    const N: usize = 30;
     let mut rng = thread_rng();
     let mut res = Vec::with_capacity(N);
     for _ in 0..N {
@@ -45,7 +45,7 @@ where
 const WIDTH: usize = 800;
 const HEIGHT: usize = 800;
 
-fn show<TAlgo, TState, TAction>(states: &Vec<TState>, _actions: &Vec<TAction>)
+fn show<TAlgo, TState, TAction>(states: &Vec<TState>, actions: &Vec<TAction>)
 where
     TAlgo: Algo<TState, TAction>,
     TState: Clone + std::fmt::Debug,
@@ -68,7 +68,12 @@ where
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         dt.clear(SolidSource::from_unpremultiplied_argb(0, 0, 0, 0xff));
-        TAlgo::draw_state(&mut dt, &states[index]);
+        if index % 2 == 0 {
+            TAlgo::draw_state(&mut dt, &states[index / 2]);
+        } else {
+            TAlgo::draw_state(&mut dt, &states[index / 2]);
+            TAlgo::draw_action(&mut dt, &actions[index / 2]);
+        }
 
         if window.is_key_down(Key::Left) {
             if !was_key_down {
@@ -77,7 +82,7 @@ where
             was_key_down = true;
         } else if window.is_key_down(Key::Right) {
             if !was_key_down {
-                index = std::cmp::min(index + 1, states.len() - 1);
+                index = std::cmp::min(index + 1, actions.len() * 2);
             }
             was_key_down = true;
         } else {

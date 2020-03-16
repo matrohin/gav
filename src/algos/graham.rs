@@ -1,7 +1,7 @@
 use crate::algos::Algo;
 use crate::common::*;
 use crate::draw_utils::*;
-use raqote::{DrawTarget, SolidSource};
+use raqote::DrawTarget;
 
 pub struct Graham;
 
@@ -55,23 +55,11 @@ where
     }
 }
 
-const WHITE_COLOR: SolidSource = SolidSource {
-    r: 0xff,
-    g: 0xff,
-    b: 0xff,
-    a: 0xff,
-};
-const GREEN_COLOR: SolidSource = SolidSource {
-    r: 0,
-    g: 0xff,
-    b: 0,
-    a: 0xff,
-};
 fn draw_half(dt: &mut DrawTarget, left: &Vec<Point>, done: &Vec<Point>) {
     for point in left {
         draw_point(dt, point, WHITE_COLOR);
     }
-    draw_path(dt, done, GREEN_COLOR);
+    draw_path(dt, done, BLUE_COLOR);
 }
 
 impl Algo<State, Action> for Graham {
@@ -105,14 +93,21 @@ impl Algo<State, Action> for Graham {
     }
 
     fn draw_state(dt: &mut DrawTarget, state: &State) {
-        // TODO: draw transparent other half?
         if !state.left_upper.is_empty() || state.lower.is_empty() {
             draw_half(dt, &state.left_upper, &state.upper);
         } else {
+            draw_half(dt, &state.left_upper, &state.upper);
             draw_half(dt, &state.left_lower, &state.lower);
         };
     }
-    fn draw_action(_dt: &mut DrawTarget, _action: &Action) {
-        // TODO: implement
+
+    fn draw_action(dt: &mut DrawTarget, action: &Action) {
+        match action {
+            Action::NoAction => {}
+            Action::AcceptPoint(p) => draw_point(dt, p, GREEN_COLOR),
+            Action::RejectPoint(p) => draw_point(dt, p, RED_COLOR),
+            Action::AcceptLine((p1, p2, p3)) => draw_path(dt, &vec![*p1, *p2, *p3], GREEN_COLOR),
+            Action::RejectLine((p1, p2, p3)) => draw_path(dt, &vec![*p1, *p2, *p3], RED_COLOR),
+        }
     }
 }

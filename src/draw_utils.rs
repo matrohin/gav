@@ -3,6 +3,30 @@ use raqote::{
     DrawOptions, DrawTarget, LineCap, LineJoin, PathBuilder, SolidSource, Source, StrokeStyle,
 };
 
+pub const WHITE_COLOR: SolidSource = SolidSource {
+    r: 0xff,
+    g: 0xff,
+    b: 0xff,
+    a: 0xff,
+};
+pub const BLUE_COLOR: SolidSource = SolidSource {
+    r: 0,
+    g: 0,
+    b: 0xff,
+    a: 0xff,
+};
+pub const GREEN_COLOR: SolidSource = SolidSource {
+    r: 0,
+    g: 0xff,
+    b: 0,
+    a: 0xff,
+};
+pub const RED_COLOR: SolidSource = SolidSource {
+    r: 0xff,
+    g: 0,
+    b: 0,
+    a: 0xff,
+};
 pub fn draw_point(dt: &mut DrawTarget, a: &Point, color: SolidSource) {
     let mut pb = PathBuilder::new();
     let r = 0.1;
