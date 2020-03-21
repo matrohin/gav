@@ -6,6 +6,7 @@ use crate::algos::graham::{self, Graham};
 use crate::algos::two_nearest::{self, TwoNearest};
 use crate::algos::Algo;
 use crate::common::*;
+use clap::{App, Arg};
 use rand::{thread_rng, Rng};
 
 use minifb::{Key, Window, WindowOptions};
@@ -92,10 +93,35 @@ where
     }
 }
 
-fn main() {
+fn run<TAlgo, TState, TAction>()
+where
+    TAlgo: Algo<TState, TAction>,
+    TState: Clone + std::fmt::Debug,
+    TAction: Clone + std::fmt::Debug,
+{
     let points = random_points();
+    let (states, actions) = all_states::<TAlgo, TState, TAction>(points);
+    show::<TAlgo, TState, TAction>(&states, &actions);
+}
 
-    let (states, actions) =
-        all_states::<TwoNearest, two_nearest::State, two_nearest::Action>(points);
-    show::<TwoNearest, two_nearest::State, two_nearest::Action>(&states, &actions);
+fn main() {
+    let matches = App::new("gav")
+        .version("0.1")
+        .author("Dmitry Matrokhin <matrokhin.d@gmail.com>")
+        .about("Geometry Algorithms Visualization")
+        .arg(
+            Arg::with_name("algo")
+                .long("algorithm")
+                .takes_value(true)
+                .possible_values(&["graham", "two_nearest"])
+                .required(true)
+                .index(1),
+        )
+        .get_matches();
+
+    match matches.value_of("algo").unwrap() {
+        "graham" => run::<Graham, graham::State, graham::Action>(),
+        "two_nearest" => run::<TwoNearest, two_nearest::State, two_nearest::Action>(),
+        _ => panic!(),
+    }
 }

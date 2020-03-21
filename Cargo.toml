@@ -1,5 +1,5 @@
 [package]
-name = "geometry_algos_visualization"
+name = "gav"
 version = "0.1.0"
 authors = ["Dmitry Matrokhin <matrokhin.d@gmail.com>"]
 edition = "2018"
@@ -11,3 +11,4 @@ euclid = "0.20.7"
 minifb = "0.15.3"
 raqote = "0.7.14"
 rand = "0.7.3"
+clap = "2.33.0"
