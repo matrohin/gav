@@ -9,7 +9,7 @@ use crate::common::*;
 use clap::{App, Arg};
 use rand::{thread_rng, Rng};
 
-use minifb::{Key, Window, WindowOptions};
+use minifb::{Key, KeyRepeat, Window, WindowOptions};
 use raqote::{DrawTarget, SolidSource, Transform};
 
 fn random_points() -> Vec<Point> {
@@ -52,7 +52,6 @@ where
 {
     let mut window = Window::new("Geometry", WIDTH, HEIGHT, WindowOptions::default()).unwrap();
     let mut index = 0;
-    let mut was_key_down = false;
     let size = window.get_size();
     let mut dt = DrawTarget::new(size.0 as i32, size.1 as i32);
     let transform = Transform::create_translation(1., -MAX_Y - 1.);
@@ -64,6 +63,7 @@ where
 
     // Limit to max ~60 fps update rate
     window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    window.set_key_repeat_rate(0.01);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         dt.clear(SolidSource::from_unpremultiplied_argb(0, 0, 0, 0xff));
@@ -74,18 +74,12 @@ where
             TAlgo::draw_action(&mut dt, &actions[index / 2]);
         }
 
-        if window.is_key_down(Key::Left) {
-            if !was_key_down {
-                index = index.saturating_sub(1);
-            }
-            was_key_down = true;
-        } else if window.is_key_down(Key::Right) {
-            if !was_key_down {
-                index = std::cmp::min(index + 1, actions.len() * 2);
-            }
-            was_key_down = true;
-        } else {
-            was_key_down = false;
+        if window.is_key_pressed(Key::Right, KeyRepeat::Yes) {
+            index = std::cmp::min(index + 1, actions.len() * 2);
+        } else if window.is_key_pressed(Key::Left, KeyRepeat::Yes) {
+            index = index.saturating_sub(1);
+        } else if window.is_key_pressed(Key::Home, KeyRepeat::No) {
+            index = 0;
         }
         window
             .update_with_buffer(dt.get_data(), size.0, size.1)
