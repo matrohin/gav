@@ -88,7 +88,7 @@ pub fn fill_part(dt: &mut DrawTarget, left_x: f32, right_x: f32, color: SolidSou
         &Source::Solid(color),
         &DrawOptions {
             blend_mode: BlendMode::SrcOut,
-            alpha: 0.5,
+            alpha: 0.3,
             antialias: AntialiasMode::Gray,
         },
     )

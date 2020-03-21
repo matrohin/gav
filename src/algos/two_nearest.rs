@@ -51,18 +51,25 @@ impl Pair {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+enum StackState {
+    ToLeftDivide,
+    ToRightDivide,
+    ToConquer(f32),
+}
+
 #[derive(Clone, Debug)]
 pub struct State {
     points: Vec<Point>,
     result: Vec<Pair>,
-    stack: Vec<(IndexBorders, i32)>,
+    stack: Vec<(IndexBorders, StackState)>,
 }
 
 #[derive(Copy, Clone, Debug)]
 pub enum Action {
     NoAction,
     Divide((HorBorders, f32)),
-    Conquer((Pair, Pair, Pair, HorBorders)),
+    Conquer((Pair, Pair, Pair, HorBorders, HorBorders)),
     PrimitiveSolve((HorBorders, Pair)),
 }
 
@@ -78,7 +85,7 @@ impl Algo<State, Action> for TwoNearest {
         State {
             points,
             result: Vec::new(),
-            stack: vec![(borders, 0)],
+            stack: vec![(borders, StackState::ToLeftDivide)],
         }
     }
 
@@ -87,88 +94,103 @@ impl Algo<State, Action> for TwoNearest {
             return (state, Action::NoAction);
         }
         let (borders, cur) = state.stack.pop().unwrap();
-        let action = if borders.r - borders.l <= 3 {
-            let mut best = Pair::inf();
-            for i in borders.l..borders.r {
-                for j in borders.l..i {
-                    let cur = Pair::new(state.points[i], state.points[j]);
-                    if cur.square_len() < best.square_len() {
-                        best = cur;
-                    }
-                }
-            }
-            (&mut state.points[borders.l..borders.r]).sort_unstable_by(cmp_by_y);
-            state.result.push(best);
-            Action::PrimitiveSolve((
-                HorBorders {
-                    l: state.points[borders.l].x,
-                    r: state.points[borders.r - 1].x,
-                },
-                best,
-            ))
-        } else if cur == 0 {
-            state.stack.push((borders, 1));
-            let left_borders = borders.left();
-            state.stack.push((left_borders, 0));
-            Action::Divide((
-                HorBorders {
-                    l: state.points[left_borders.l].x,
-                    r: state.points[left_borders.r - 1].x,
-                },
-                state.points[borders.r - 1].x,
-            ))
-        } else if cur == 1 {
-            state.stack.push((borders, 2));
-            let right_borders = borders.right();
-            state.stack.push((right_borders, 0));
-            Action::Divide((
-                HorBorders {
-                    l: state.points[right_borders.l].x,
-                    r: state.points[right_borders.r - 1].x,
-                },
-                state.points[borders.l].x,
-            ))
-        } else {
-            let right_best = state.result.pop().unwrap();
-            let left_best = state.result.pop().unwrap();
-            let mut best = if left_best.square_len() < right_best.square_len() {
-                left_best
-            } else {
-                right_best
-            };
-            // TODO: rewrite to merge sort
-            (&mut state.points[borders.l..borders.r]).sort_unstable_by(cmp_by_y);
-            let midx = state.points[(borders.l + borders.r) / 2].x;
-            let h = best.square_len().sqrt();
-            let mut border_points: Vec<Point> = Vec::new();
-            for cur in &state.points[borders.l..borders.r] {
-                if (cur.x - midx).abs() < h {
-                    for p in border_points.iter().rev() {
-                        if cur.y - p.y > h {
-                            break;
-                        }
-                        let t = Pair::new(*cur, *p);
-                        if t.square_len() < best.square_len() {
-                            best = t;
+        let action = match cur {
+            StackState::ToLeftDivide => {
+                if borders.r - borders.l <= 3 {
+                    let mut best = Pair::inf();
+                    for i in borders.l..borders.r {
+                        for j in borders.l..i {
+                            let cur = Pair::new(state.points[i], state.points[j]);
+                            if cur.square_len() < best.square_len() {
+                                best = cur;
+                            }
                         }
                     }
-                    border_points.push(*cur);
-                }
-            }
 
-            state.result.push(best);
-            Action::Conquer((
-                best,
-                left_best,
-                right_best,
-                HorBorders {
-                    l: midx - h,
-                    r: midx + h,
-                },
-            ))
+                    let hor_borders = HorBorders {
+                        l: state.points[borders.l].x,
+                        r: state.points[borders.r - 1].x,
+                    };
+
+                    (&mut state.points[borders.l..borders.r]).sort_unstable_by(cmp_by_y);
+                    state.result.push(best);
+                    Action::PrimitiveSolve((hor_borders, best))
+                } else {
+                    let left_borders = borders.left();
+                    state.stack.push((borders, StackState::ToRightDivide));
+                    state.stack.push((left_borders, StackState::ToLeftDivide));
+                    Action::Divide((
+                        HorBorders {
+                            l: state.points[left_borders.l].x,
+                            r: state.points[left_borders.r - 1].x,
+                        },
+                        state.points[borders.r - 1].x,
+                    ))
+                }
+            }
+            StackState::ToRightDivide => {
+                let right_borders = borders.right();
+                let midx = state.points[right_borders.l].x;
+                state.stack.push((borders, StackState::ToConquer(midx)));
+                state.stack.push((right_borders, StackState::ToLeftDivide));
+                Action::Divide((
+                    HorBorders {
+                        l: midx,
+                        r: state.points[right_borders.r - 1].x,
+                    },
+                    state.points[borders.l].x,
+                ))
+            }
+            StackState::ToConquer(midx) => {
+                let right_best = state.result.pop().unwrap();
+                let left_best = state.result.pop().unwrap();
+                let mut best = if left_best.square_len() < right_best.square_len() {
+                    left_best
+                } else {
+                    right_best
+                };
+                // TODO: rewrite to merge sort
+                (&mut state.points[borders.l..borders.r]).sort_unstable_by(cmp_by_y);
+                let h = best.square_len().sqrt();
+                let mut border_points: Vec<Point> = Vec::new();
+                let mut left_x = MAX_X;
+                let mut right_x = 0.;
+                for cur in &state.points[borders.l..borders.r] {
+                    if (cur.x - midx).abs() < h {
+                        for p in border_points.iter().rev() {
+                            if cur.y - p.y > h {
+                                break;
+                            }
+                            let t = Pair::new(*cur, *p);
+                            if t.square_len() < best.square_len() {
+                                best = t;
+                            }
+                        }
+                        border_points.push(*cur);
+                    }
+                    left_x = cur.x.min(left_x);
+                    right_x = cur.x.max(right_x);
+                }
+
+                state.result.push(best);
+                Action::Conquer((
+                    best,
+                    left_best,
+                    right_best,
+                    HorBorders {
+                        l: left_x,
+                        r: right_x,
+                    },
+                    HorBorders {
+                        l: midx - h,
+                        r: midx + h,
+                    },
+                ))
+            }
         };
         (state, action)
     }
+
     fn is_final(state: &State) -> bool {
         state.stack.is_empty()
     }
@@ -181,15 +203,25 @@ impl Algo<State, Action> for TwoNearest {
             draw_line(dt, &line.a, &line.b, GREEN_COLOR);
         }
     }
+
     fn draw_action(dt: &mut DrawTarget, action: &Action) {
         match action {
             Action::NoAction => {}
             Action::Divide((borders, x)) => {
-                draw_line(dt, &Point::new(*x, 0.), &Point::new(*x, MAX_Y), BLUE_COLOR);
+                draw_vertical_line(dt, *x);
                 draw_borders(dt, borders);
             }
-            Action::Conquer((best, best_left, best_right, points_borders)) => {
-                draw_borders(dt, points_borders);
+            Action::Conquer((best, best_left, best_right, borders, points_borders)) => {
+                draw_borders(
+                    dt,
+                    &HorBorders {
+                        l: points_borders.l.max(borders.l),
+                        r: points_borders.r.min(borders.r),
+                    },
+                );
+                draw_vertical_line(dt, borders.l);
+                draw_vertical_line(dt, borders.r);
+
                 draw_line(dt, &best_left.a, &best_left.b, RED_COLOR);
                 draw_line(dt, &best_right.a, &best_right.b, RED_COLOR);
                 draw_line(dt, &best.a, &best.b, YELLOW_COLOR);
@@ -202,6 +234,10 @@ impl Algo<State, Action> for TwoNearest {
     }
 }
 
+fn draw_vertical_line(dt: &mut DrawTarget, x: f32) {
+    draw_line(dt, &Point::new(x, 0.), &Point::new(x, MAX_Y), BLUE_COLOR);
+}
+
 fn draw_borders(dt: &mut DrawTarget, borders: &HorBorders) {
-    fill_part(dt, borders.l, borders.r, BLUE_COLOR);
+    fill_part(dt, borders.l - 0.1, borders.r + 0.1, GREEN_COLOR);
 }
