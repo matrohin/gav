@@ -3,15 +3,13 @@ mod common;
 mod draw_utils;
 
 use crate::algos::graham::{self, Graham};
+use crate::algos::two_nearest::{self, TwoNearest};
 use crate::algos::Algo;
-use crate::common::Point;
+use crate::common::*;
 use rand::{thread_rng, Rng};
 
 use minifb::{Key, Window, WindowOptions};
 use raqote::{DrawTarget, SolidSource, Transform};
-
-const MAX_X: f32 = 30.0;
-const MAX_Y: f32 = 30.0;
 
 fn random_points() -> Vec<Point> {
     const N: usize = 30;
@@ -97,6 +95,7 @@ where
 fn main() {
     let points = random_points();
 
-    let (states, actions) = all_states::<Graham, graham::State, graham::Action>(points);
-    show::<Graham, graham::State, graham::Action>(&states, &actions);
+    let (states, actions) =
+        all_states::<TwoNearest, two_nearest::State, two_nearest::Action>(points);
+    show::<TwoNearest, two_nearest::State, two_nearest::Action>(&states, &actions);
 }

@@ -64,7 +64,7 @@ fn draw_half(dt: &mut DrawTarget, left: &Vec<Point>, done: &Vec<Point>) {
 
 impl Algo<State, Action> for Graham {
     fn first_state(mut points: Vec<Point>) -> State {
-        points.sort_unstable_by(|a, b| b.x.partial_cmp(&a.x).unwrap());
+        points.sort_unstable_by(|a, b| cmp_by_x(b, a));
         State {
             left_upper: points.clone(),
             left_lower: points,
