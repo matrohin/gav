@@ -93,3 +93,7 @@ pub fn fill_part(dt: &mut DrawTarget, left_x: f32, right_x: f32, color: SolidSou
         },
     )
 }
+
+pub fn draw_vertical_line(dt: &mut DrawTarget, x: f32) {
+    draw_line(dt, &Point::new(x, 0.), &Point::new(x, MAX_Y), BLUE_COLOR);
+}

@@ -1,5 +1,6 @@
 pub mod graham;
-pub mod two_nearest;
+pub mod shamos_hoey;
+pub mod two_nearest_dnc;
 
 use crate::common::Point;
 use raqote::DrawTarget;

@@ -234,10 +234,6 @@ impl Algo<State, Action> for TwoNearest {
     }
 }
 
-fn draw_vertical_line(dt: &mut DrawTarget, x: f32) {
-    draw_line(dt, &Point::new(x, 0.), &Point::new(x, MAX_Y), BLUE_COLOR);
-}
-
 fn draw_borders(dt: &mut DrawTarget, borders: &HorBorders) {
     fill_part(dt, borders.l - 0.1, borders.r + 0.1, GREEN_COLOR);
 }

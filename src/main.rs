@@ -3,7 +3,8 @@ mod common;
 mod draw_utils;
 
 use crate::algos::graham::{self, Graham};
-use crate::algos::two_nearest::{self, TwoNearest};
+use crate::algos::shamos_hoey::{self, ShamosHoey};
+use crate::algos::two_nearest_dnc::{self, TwoNearest};
 use crate::algos::Algo;
 use crate::common::*;
 use clap::{App, Arg};
@@ -80,6 +81,8 @@ where
             index = index.saturating_sub(1);
         } else if window.is_key_pressed(Key::Home, KeyRepeat::No) {
             index = 0;
+        } else if window.is_key_pressed(Key::End, KeyRepeat::No) {
+            index = actions.len() * 2;
         }
         window
             .update_with_buffer(dt.get_data(), size.0, size.1)
@@ -107,7 +110,7 @@ fn main() {
             Arg::with_name("algo")
                 .long("algorithm")
                 .takes_value(true)
-                .possible_values(&["graham", "two_nearest"])
+                .possible_values(&["graham", "two_nearest_dnc", "shamos_hoey"])
                 .required(true)
                 .index(1),
         )
@@ -115,7 +118,8 @@ fn main() {
 
     match matches.value_of("algo").unwrap() {
         "graham" => run::<Graham, graham::State, graham::Action>(),
-        "two_nearest" => run::<TwoNearest, two_nearest::State, two_nearest::Action>(),
+        "two_nearest_dnc" => run::<TwoNearest, two_nearest_dnc::State, two_nearest_dnc::Action>(),
+        "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(),
         _ => panic!(),
     }
 }
