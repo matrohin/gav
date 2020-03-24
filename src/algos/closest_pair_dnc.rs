@@ -52,9 +52,9 @@ pub enum Action {
     PrimitiveSolve((HorBorders, Pair)),
 }
 
-pub struct TwoNearest;
+pub struct ClosestPairDivideAndConquer;
 
-impl Algo<State, Action> for TwoNearest {
+impl Algo<State, Action> for ClosestPairDivideAndConquer {
     fn first_state(mut points: Vec<Point>) -> State {
         points.sort_unstable_by(cmp_by_x);
         let borders = IndexBorders {

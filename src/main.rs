@@ -2,10 +2,10 @@ mod algos;
 mod common;
 mod draw_utils;
 
+use crate::algos::closest_pair_dnc::{self, ClosestPairDivideAndConquer};
 use crate::algos::closest_pair_sl::{self, ClosestPairSweepLine};
 use crate::algos::graham::{self, Graham};
 use crate::algos::shamos_hoey::{self, ShamosHoey};
-use crate::algos::two_nearest_dnc::{self, TwoNearest};
 use crate::algos::Algo;
 use crate::common::*;
 use clap::{App, Arg};
@@ -112,10 +112,10 @@ fn main() {
                 .long("algorithm")
                 .takes_value(true)
                 .possible_values(&[
+                    "closest_pair_dnc",
                     "closest_pair_sl",
                     "graham",
                     "shamos_hoey",
-                    "two_nearest_dnc",
                 ])
                 .required(true)
                 .index(1),
@@ -123,11 +123,13 @@ fn main() {
         .get_matches();
 
     match matches.value_of("algo").unwrap() {
-        "graham" => run::<Graham, graham::State, graham::Action>(),
-        "two_nearest_dnc" => run::<TwoNearest, two_nearest_dnc::State, two_nearest_dnc::Action>(),
+        "closest_pair_dnc" => {
+            run::<ClosestPairDivideAndConquer, closest_pair_dnc::State, closest_pair_dnc::Action>()
+        }
         "closest_pair_sl" => {
             run::<ClosestPairSweepLine, closest_pair_sl::State, closest_pair_sl::Action>()
         }
+        "graham" => run::<Graham, graham::State, graham::Action>(),
         "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(),
         _ => panic!(),
     }

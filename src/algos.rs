@@ -1,7 +1,7 @@
+pub mod closest_pair_dnc;
 pub mod closest_pair_sl;
 pub mod graham;
 pub mod shamos_hoey;
-pub mod two_nearest_dnc;
 
 use crate::common::Point;
 use raqote::DrawTarget;
