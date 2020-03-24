@@ -31,27 +31,6 @@ pub struct HorBorders {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct Pair {
-    a: Point,
-    b: Point,
-}
-
-impl Pair {
-    fn new(a: Point, b: Point) -> Self {
-        Self { a, b }
-    }
-    fn inf() -> Self {
-        Self {
-            a: Point::new(0., 0.),
-            b: Point::new(std::f32::INFINITY, std::f32::INFINITY),
-        }
-    }
-    fn square_len(&self) -> f32 {
-        (self.a - self.b).square_length()
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
 enum StackState {
     ToLeftDivide,
     ToRightDivide,
@@ -208,7 +187,7 @@ impl Algo<State, Action> for TwoNearest {
         match action {
             Action::NoAction => {}
             Action::Divide((borders, x)) => {
-                draw_vertical_line(dt, *x);
+                draw_vertical_line(dt, *x, BLUE_COLOR);
                 draw_borders(dt, borders);
             }
             Action::Conquer((best, best_left, best_right, borders, points_borders)) => {
@@ -219,8 +198,8 @@ impl Algo<State, Action> for TwoNearest {
                         r: points_borders.r.min(borders.r),
                     },
                 );
-                draw_vertical_line(dt, borders.l);
-                draw_vertical_line(dt, borders.r);
+                draw_vertical_line(dt, borders.l, BLUE_COLOR);
+                draw_vertical_line(dt, borders.r, BLUE_COLOR);
 
                 draw_line(dt, &best_left.a, &best_left.b, RED_COLOR);
                 draw_line(dt, &best_right.a, &best_right.b, RED_COLOR);

@@ -2,6 +2,7 @@ mod algos;
 mod common;
 mod draw_utils;
 
+use crate::algos::closest_pair_sl::{self, ClosestPairSweepLine};
 use crate::algos::graham::{self, Graham};
 use crate::algos::shamos_hoey::{self, ShamosHoey};
 use crate::algos::two_nearest_dnc::{self, TwoNearest};
@@ -110,7 +111,12 @@ fn main() {
             Arg::with_name("algo")
                 .long("algorithm")
                 .takes_value(true)
-                .possible_values(&["graham", "two_nearest_dnc", "shamos_hoey"])
+                .possible_values(&[
+                    "closest_pair_sl",
+                    "graham",
+                    "shamos_hoey",
+                    "two_nearest_dnc",
+                ])
                 .required(true)
                 .index(1),
         )
@@ -119,6 +125,9 @@ fn main() {
     match matches.value_of("algo").unwrap() {
         "graham" => run::<Graham, graham::State, graham::Action>(),
         "two_nearest_dnc" => run::<TwoNearest, two_nearest_dnc::State, two_nearest_dnc::Action>(),
+        "closest_pair_sl" => {
+            run::<ClosestPairSweepLine, closest_pair_sl::State, closest_pair_sl::Action>()
+        }
         "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(),
         _ => panic!(),
     }

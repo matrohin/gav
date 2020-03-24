@@ -221,7 +221,7 @@ impl Algo<State, Action> for ShamosHoey {
         match action {
             Action::NoAction => {}
             Action::Scan((cur_seg, found, x)) => {
-                draw_vertical_line(dt, *x);
+                draw_vertical_line(dt, *x, BLUE_COLOR);
                 draw_line(dt, &cur_seg.a, &cur_seg.b, YELLOW_COLOR);
                 for (seg1, seg2) in found {
                     draw_line(dt, &seg1.a, &seg1.b, RED_COLOR);

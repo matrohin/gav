@@ -1,3 +1,4 @@
+pub mod closest_pair_sl;
 pub mod graham;
 pub mod shamos_hoey;
 pub mod two_nearest_dnc;

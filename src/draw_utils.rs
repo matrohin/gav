@@ -79,12 +79,12 @@ pub fn draw_path(dt: &mut DrawTarget, points: &Vec<Point>, color: SolidSource) {
     draw_rpath(dt, &pb.finish(), color);
 }
 
-pub fn fill_part(dt: &mut DrawTarget, left_x: f32, right_x: f32, color: SolidSource) {
+pub fn fill_rect(dt: &mut DrawTarget, lb: &Point, rt: &Point, color: SolidSource) {
     dt.fill_rect(
-        left_x,
-        0.,
-        right_x - left_x,
-        MAX_Y,
+        lb.x,
+        lb.y,
+        rt.x - lb.x,
+        rt.y - lb.y,
         &Source::Solid(color),
         &DrawOptions {
             blend_mode: BlendMode::SrcOut,
@@ -93,7 +93,15 @@ pub fn fill_part(dt: &mut DrawTarget, left_x: f32, right_x: f32, color: SolidSou
         },
     )
 }
+pub fn fill_part(dt: &mut DrawTarget, left_x: f32, right_x: f32, color: SolidSource) {
+    fill_rect(
+        dt,
+        &Point::new(left_x, 0.),
+        &Point::new(right_x, MAX_Y),
+        color,
+    );
+}
 
-pub fn draw_vertical_line(dt: &mut DrawTarget, x: f32) {
-    draw_line(dt, &Point::new(x, 0.), &Point::new(x, MAX_Y), BLUE_COLOR);
+pub fn draw_vertical_line(dt: &mut DrawTarget, x: f32, color: SolidSource) {
+    draw_line(dt, &Point::new(x, 0.), &Point::new(x, MAX_Y), color);
 }
