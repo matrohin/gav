@@ -43,8 +43,22 @@ where
     (states, actions)
 }
 
-const WIDTH: usize = 800;
-const HEIGHT: usize = 800;
+const WIDTH: usize = 1000;
+const HEIGHT: usize = 1000;
+
+fn get_next_index(window: &Window, index: usize, max_index: usize) -> usize {
+    if window.is_key_pressed(Key::Right, KeyRepeat::Yes) {
+        std::cmp::min(index + 1, max_index)
+    } else if window.is_key_pressed(Key::Left, KeyRepeat::Yes) {
+        index.saturating_sub(1)
+    } else if window.is_key_pressed(Key::Home, KeyRepeat::No) || index == std::usize::MAX {
+        0
+    } else if window.is_key_pressed(Key::End, KeyRepeat::No) {
+        max_index
+    } else {
+        index
+    }
+}
 
 fn show<TAlgo, TState, TAction>(states: &Vec<TState>, actions: &Vec<TAction>)
 where
@@ -52,8 +66,9 @@ where
     TState: Clone + std::fmt::Debug,
     TAction: Clone + std::fmt::Debug,
 {
-    let mut window = Window::new("Geometry", WIDTH, HEIGHT, WindowOptions::default()).unwrap();
-    let mut index = 0;
+    let title = "Geometry Algorithms Visualization";
+    let mut window = Window::new(title, WIDTH, HEIGHT, WindowOptions::default()).unwrap();
+    let mut index = std::usize::MAX;
     let size = window.get_size();
     let mut dt = DrawTarget::new(size.0 as i32, size.1 as i32);
     let transform = Transform::create_translation(1., -MAX_Y - 1.);
@@ -68,26 +83,22 @@ where
     window.set_key_repeat_rate(0.01);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        dt.clear(SolidSource::from_unpremultiplied_argb(0, 0, 0, 0xff));
-        if index % 2 == 0 {
-            TAlgo::draw_state(&mut dt, &states[index / 2]);
+        let new_index = get_next_index(&window, index, actions.len() * 2);
+        if new_index != index {
+            index = new_index;
+            dt.clear(SolidSource::from_unpremultiplied_argb(0, 0, 0, 0xff));
+            if index % 2 == 0 {
+                TAlgo::draw_state(&mut dt, &states[index / 2]);
+            } else {
+                TAlgo::draw_state(&mut dt, &states[index / 2]);
+                TAlgo::draw_action(&mut dt, &actions[index / 2]);
+            }
+            window
+                .update_with_buffer(dt.get_data(), size.0, size.1)
+                .unwrap();
         } else {
-            TAlgo::draw_state(&mut dt, &states[index / 2]);
-            TAlgo::draw_action(&mut dt, &actions[index / 2]);
+            window.update();
         }
-
-        if window.is_key_pressed(Key::Right, KeyRepeat::Yes) {
-            index = std::cmp::min(index + 1, actions.len() * 2);
-        } else if window.is_key_pressed(Key::Left, KeyRepeat::Yes) {
-            index = index.saturating_sub(1);
-        } else if window.is_key_pressed(Key::Home, KeyRepeat::No) {
-            index = 0;
-        } else if window.is_key_pressed(Key::End, KeyRepeat::No) {
-            index = actions.len() * 2;
-        }
-        window
-            .update_with_buffer(dt.get_data(), size.0, size.1)
-            .unwrap();
     }
 }
 
