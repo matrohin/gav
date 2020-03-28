@@ -9,14 +9,14 @@ use crate::algos::shamos_hoey::{self, ShamosHoey};
 use crate::algos::Algo;
 use crate::common::*;
 use clap::{App, Arg};
-use rand::{thread_rng, Rng};
+use rand::rngs::{OsRng, StdRng};
+use rand::{Rng, RngCore, SeedableRng};
 
 use minifb::{Key, KeyRepeat, Window, WindowOptions};
 use raqote::{DrawTarget, SolidSource, Transform};
 
-fn random_points() -> Vec<Point> {
+fn random_points(mut rng: impl Rng) -> Vec<Point> {
     const N: usize = 30;
-    let mut rng = thread_rng();
     let mut res = Vec::with_capacity(N);
     for _ in 0..N {
         res.push(Point::new(
@@ -102,13 +102,12 @@ where
     }
 }
 
-fn run<TAlgo, TState, TAction>()
+fn run<TAlgo, TState, TAction>(points: Vec<Point>)
 where
     TAlgo: Algo<TState, TAction>,
     TState: Clone + std::fmt::Debug,
     TAction: Clone + std::fmt::Debug,
 {
-    let points = random_points();
     let (states, actions) = all_states::<TAlgo, TState, TAction>(points);
     show::<TAlgo, TState, TAction>(&states, &actions);
 }
@@ -131,17 +130,33 @@ fn main() {
                 .required(true)
                 .index(1),
         )
+        .arg(
+            Arg::with_name("seed")
+                .long("seed")
+                .short("s")
+                .takes_value(true),
+        )
         .get_matches();
+
+    let seed = matches
+        .value_of("seed")
+        .and_then(|a| a.parse().ok())
+        .unwrap_or_else(|| OsRng.next_u64());
+
+    println!("Seed: {}", seed);
+    let points = random_points(StdRng::seed_from_u64(seed));
 
     match matches.value_of("algo").unwrap() {
         "closest_pair_dnc" => {
-            run::<ClosestPairDivideAndConquer, closest_pair_dnc::State, closest_pair_dnc::Action>()
+            run::<ClosestPairDivideAndConquer, closest_pair_dnc::State, closest_pair_dnc::Action>(
+                points,
+            )
         }
         "closest_pair_sl" => {
-            run::<ClosestPairSweepLine, closest_pair_sl::State, closest_pair_sl::Action>()
+            run::<ClosestPairSweepLine, closest_pair_sl::State, closest_pair_sl::Action>(points)
         }
-        "graham" => run::<Graham, graham::State, graham::Action>(),
-        "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(),
+        "graham" => run::<Graham, graham::State, graham::Action>(points),
+        "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(points),
         _ => panic!(),
     }
 }
