@@ -4,33 +4,6 @@ use crate::draw_utils::*;
 use raqote::DrawTarget;
 
 #[derive(Copy, Clone, Debug)]
-pub struct IndexBorders {
-    l: usize,
-    r: usize,
-}
-
-impl IndexBorders {
-    fn left(&self) -> Self {
-        IndexBorders {
-            l: self.l,
-            r: (self.l + self.r) / 2,
-        }
-    }
-    fn right(&self) -> Self {
-        IndexBorders {
-            l: (self.l + self.r) / 2,
-            r: self.r,
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
-pub struct HorBorders {
-    l: f32,
-    r: f32,
-}
-
-#[derive(Copy, Clone, Debug)]
 enum StackState {
     ToLeftDivide,
     ToRightDivide,
@@ -211,8 +184,4 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
             }
         }
     }
-}
-
-fn draw_borders(dt: &mut DrawTarget, borders: &HorBorders) {
-    fill_part(dt, borders.l - 0.1, borders.r + 0.1, GREEN_COLOR);
 }

@@ -1,5 +1,6 @@
 pub mod closest_pair_dnc;
 pub mod closest_pair_sl;
+pub mod convex_hull_dnc;
 pub mod graham;
 pub mod shamos_hoey;
 

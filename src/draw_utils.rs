@@ -105,3 +105,7 @@ pub fn fill_part(dt: &mut DrawTarget, left_x: f32, right_x: f32, color: SolidSou
 pub fn draw_vertical_line(dt: &mut DrawTarget, x: f32, color: SolidSource) {
     draw_line(dt, &Point::new(x, 0.), &Point::new(x, MAX_Y), color);
 }
+
+pub fn draw_borders(dt: &mut DrawTarget, borders: &HorBorders) {
+    fill_part(dt, borders.l - 0.1, borders.r + 0.1, GREEN_COLOR);
+}

@@ -17,6 +17,10 @@ pub fn cmp_by_y(a: &Point, b: &Point) -> std::cmp::Ordering {
     a.y.partial_cmp(&b.y).unwrap()
 }
 
+pub fn cmp_by_xy(a: &Point, b: &Point) -> std::cmp::Ordering {
+    cmp_by_x(a, b).then_with(|| cmp_by_y(a, b))
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct Pair {
     pub a: Point,
@@ -43,4 +47,31 @@ impl Pair {
     pub fn square_len(&self) -> f32 {
         (self.a - self.b).square_length()
     }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct IndexBorders {
+    pub l: usize,
+    pub r: usize,
+}
+
+impl IndexBorders {
+    pub fn left(&self) -> Self {
+        IndexBorders {
+            l: self.l,
+            r: (self.l + self.r) / 2,
+        }
+    }
+    pub fn right(&self) -> Self {
+        IndexBorders {
+            l: (self.l + self.r) / 2,
+            r: self.r,
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct HorBorders {
+    pub l: f32,
+    pub r: f32,
 }

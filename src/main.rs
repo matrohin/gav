@@ -4,6 +4,7 @@ mod draw_utils;
 
 use crate::algos::closest_pair_dnc::{self, ClosestPairDivideAndConquer};
 use crate::algos::closest_pair_sl::{self, ClosestPairSweepLine};
+use crate::algos::convex_hull_dnc::{self, ConvexHullDivideAndConquer};
 use crate::algos::graham::{self, Graham};
 use crate::algos::shamos_hoey::{self, ShamosHoey};
 use crate::algos::Algo;
@@ -16,7 +17,7 @@ use minifb::{Key, KeyRepeat, Window, WindowOptions};
 use raqote::{DrawTarget, SolidSource, Transform};
 
 fn random_points(mut rng: impl Rng) -> Vec<Point> {
-    const N: usize = 30;
+    const N: usize = 100;
     let mut res = Vec::with_capacity(N);
     for _ in 0..N {
         res.push(Point::new(
@@ -124,6 +125,7 @@ fn main() {
                 .possible_values(&[
                     "closest_pair_dnc",
                     "closest_pair_sl",
+                    "convex_hull_dnc",
                     "graham",
                     "shamos_hoey",
                 ])
@@ -154,6 +156,11 @@ fn main() {
         }
         "closest_pair_sl" => {
             run::<ClosestPairSweepLine, closest_pair_sl::State, closest_pair_sl::Action>(points)
+        }
+        "convex_hull_dnc" => {
+            run::<ConvexHullDivideAndConquer, convex_hull_dnc::State, convex_hull_dnc::Action>(
+                points,
+            )
         }
         "graham" => run::<Graham, graham::State, graham::Action>(points),
         "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(points),
