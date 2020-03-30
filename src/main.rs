@@ -9,17 +9,15 @@ use crate::algos::graham::{self, Graham};
 use crate::algos::shamos_hoey::{self, ShamosHoey};
 use crate::algos::Algo;
 use crate::common::*;
-use clap::{App, Arg};
+use clap::{value_t, App, Arg};
+use minifb::{Key, KeyRepeat, Window, WindowOptions};
 use rand::rngs::{OsRng, StdRng};
 use rand::{Rng, RngCore, SeedableRng};
-
-use minifb::{Key, KeyRepeat, Window, WindowOptions};
 use raqote::{DrawTarget, SolidSource, Transform};
 
-fn random_points(mut rng: impl Rng) -> Vec<Point> {
-    const N: usize = 100;
-    let mut res = Vec::with_capacity(N);
-    for _ in 0..N {
+fn random_points(n: usize, mut rng: impl Rng) -> Vec<Point> {
+    let mut res = Vec::with_capacity(n);
+    for _ in 0..n {
         res.push(Point::new(
             rng.gen_range(0., MAX_X),
             rng.gen_range(0., MAX_Y),
@@ -138,15 +136,21 @@ fn main() {
                 .short("s")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("number")
+                .long("number")
+                .short("n")
+                .takes_value(true)
+                .default_value("50")
+                .validator(is_number),
+        )
         .get_matches();
 
-    let seed = matches
-        .value_of("seed")
-        .and_then(|a| a.parse().ok())
-        .unwrap_or_else(|| OsRng.next_u64());
+    let n = value_t!(matches, "number", usize).unwrap();
+    let seed = value_t!(matches, "seed", u64).unwrap_or_else(|_| OsRng.next_u64());
 
     println!("Seed: {}", seed);
-    let points = random_points(StdRng::seed_from_u64(seed));
+    let points = random_points(n, StdRng::seed_from_u64(seed));
 
     match matches.value_of("algo").unwrap() {
         "closest_pair_dnc" => {
@@ -165,5 +169,18 @@ fn main() {
         "graham" => run::<Graham, graham::State, graham::Action>(points),
         "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(points),
         _ => panic!(),
+    }
+}
+
+fn is_number(val: String) -> Result<(), String> {
+    let val = val
+        .parse::<usize>()
+        .map_err(|e| format!("failed to parse a number: {}", e))?;
+    if val <= 3 {
+        Err(String::from(
+            "the number of points should be greater than 3",
+        ))
+    } else {
+        Ok(())
     }
 }
