@@ -75,16 +75,13 @@ fn brute_force(borders: &IndexBorders, points: &Vec<Point>) -> Vec<Point> {
     res
 }
 
-fn find_tangent<F>(
+fn find_tangent(
     left: &Vec<Point>,
     right: &Vec<Point>,
     mut li: usize,
     mut ri: usize,
-    is_convex: F,
-) -> (usize, usize)
-where
-    F: Fn(&Point, &Point, &Point) -> bool,
-{
+) -> (usize, usize) {
+    let is_convex = |a, b, c| rotation(a, b, c) < 0.;
     let mut done = false;
     while !done {
         done = true;
@@ -143,10 +140,7 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
                     state.stack.push((borders, StackState::ToRightDivide));
                     state.stack.push((left_borders, StackState::ToLeftDivide));
                     Action::Divide((
-                        HorBorders {
-                            l: state.points[left_borders.l].x,
-                            r: state.points[left_borders.r - 1].x,
-                        },
+                        HorBorders::from_indexes(&state.points, &left_borders),
                         state.points[borders.r - 1].x,
                     ))
                 }
@@ -156,10 +150,7 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
                 state.stack.push((borders, StackState::ToConquer));
                 state.stack.push((right_borders, StackState::ToLeftDivide));
                 Action::Divide((
-                    HorBorders {
-                        l: state.points[right_borders.l].x,
-                        r: state.points[right_borders.r - 1].x,
-                    },
+                    HorBorders::from_indexes(&state.points, &right_borders),
                     state.points[borders.l].x,
                 ))
             }
@@ -177,29 +168,17 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
                     .max_by(|a, b| cmp_by_x(a.1, b.1))
                     .unwrap();
 
-                let (left_upper, right_upper) = find_tangent(
-                    &left,
-                    &right,
-                    rightmost_in_left,
-                    leftmost_in_right,
-                    |a, b, c| rotation(a, b, c) < 0.,
-                );
-                let (right_lower, left_lower) = find_tangent(
-                    &right,
-                    &left,
-                    leftmost_in_right,
-                    rightmost_in_left,
-                    |a, b, c| rotation(a, b, c) < 0.,
-                );
+                let (left_upper, right_upper) =
+                    find_tangent(&left, &right, rightmost_in_left, leftmost_in_right);
+                let (right_lower, left_lower) =
+                    find_tangent(&right, &left, leftmost_in_right, rightmost_in_left);
 
-                let r = overflowing_range(left_upper, left_lower, left.len())
-                    .map(|i| left[i])
-                    .chain(
-                        overflowing_range(right_lower, right_upper, right.len()).map(|i| right[i]),
-                    )
-                    .collect();
+                let left_result =
+                    overflowing_range(left_upper, left_lower, left.len()).map(|i| left[i]);
+                let right_result =
+                    overflowing_range(right_lower, right_upper, right.len()).map(|i| right[i]);
+                state.result.push(left_result.chain(right_result).collect());
 
-                state.result.push(r);
                 let first_t = Pair::new(left[left_upper], right[right_upper]);
                 let second_t = Pair::new(left[left_lower], right[right_lower]);
                 Action::Conquer((left, right, first_t, second_t))

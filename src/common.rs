@@ -75,3 +75,15 @@ pub struct HorBorders {
     pub l: f32,
     pub r: f32,
 }
+
+impl HorBorders {
+    pub fn new(l: f32, r: f32) -> Self {
+        Self { l, r }
+    }
+    pub fn from_indexes(points: &Vec<Point>, borders: &IndexBorders) -> Self {
+        Self {
+            l: points[borders.l].x,
+            r: points[borders.r - 1].x,
+        }
+    }
+}

@@ -25,6 +25,19 @@ pub enum Action {
     PrimitiveSolve((HorBorders, Pair)),
 }
 
+fn brute_force(borders: &IndexBorders, points: &Vec<Point>) -> Pair {
+    let mut best = Pair::inf();
+    for i in borders.l..borders.r {
+        for j in borders.l..i {
+            let cur = Pair::new(points[i], points[j]);
+            if cur.square_len() < best.square_len() {
+                best = cur;
+            }
+        }
+    }
+    best
+}
+
 pub struct ClosestPairDivideAndConquer;
 
 impl Algo<State, Action> for ClosestPairDivideAndConquer {
@@ -49,21 +62,8 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
         let action = match cur {
             StackState::ToLeftDivide => {
                 if borders.r - borders.l <= 3 {
-                    let mut best = Pair::inf();
-                    for i in borders.l..borders.r {
-                        for j in borders.l..i {
-                            let cur = Pair::new(state.points[i], state.points[j]);
-                            if cur.square_len() < best.square_len() {
-                                best = cur;
-                            }
-                        }
-                    }
-
-                    let hor_borders = HorBorders {
-                        l: state.points[borders.l].x,
-                        r: state.points[borders.r - 1].x,
-                    };
-
+                    let best = brute_force(&borders, &state.points);
+                    let hor_borders = HorBorders::from_indexes(&state.points, &borders);
                     (&mut state.points[borders.l..borders.r]).sort_unstable_by(cmp_by_y);
                     state.result.push(best);
                     Action::PrimitiveSolve((hor_borders, best))
@@ -72,10 +72,7 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
                     state.stack.push((borders, StackState::ToRightDivide));
                     state.stack.push((left_borders, StackState::ToLeftDivide));
                     Action::Divide((
-                        HorBorders {
-                            l: state.points[left_borders.l].x,
-                            r: state.points[left_borders.r - 1].x,
-                        },
+                        HorBorders::from_indexes(&state.points, &left_borders),
                         state.points[borders.r - 1].x,
                     ))
                 }
@@ -86,10 +83,7 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
                 state.stack.push((borders, StackState::ToConquer(midx)));
                 state.stack.push((right_borders, StackState::ToLeftDivide));
                 Action::Divide((
-                    HorBorders {
-                        l: midx,
-                        r: state.points[right_borders.r - 1].x,
-                    },
+                    HorBorders::new(midx, state.points[right_borders.r - 1].x),
                     state.points[borders.l].x,
                 ))
             }
@@ -129,14 +123,8 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
                     best,
                     left_best,
                     right_best,
-                    HorBorders {
-                        l: left_x,
-                        r: right_x,
-                    },
-                    HorBorders {
-                        l: midx - h,
-                        r: midx + h,
-                    },
+                    HorBorders::new(left_x, right_x),
+                    HorBorders::new(midx - h, midx + h),
                 ))
             }
         };
@@ -166,10 +154,10 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
             Action::Conquer((best, best_left, best_right, borders, points_borders)) => {
                 draw_borders(
                     dt,
-                    &HorBorders {
-                        l: points_borders.l.max(borders.l),
-                        r: points_borders.r.min(borders.r),
-                    },
+                    &HorBorders::new(
+                        points_borders.l.max(borders.l),
+                        points_borders.r.min(borders.r),
+                    ),
                 );
                 draw_vertical_line(dt, borders.l, BLUE_COLOR);
                 draw_vertical_line(dt, borders.r, BLUE_COLOR);
