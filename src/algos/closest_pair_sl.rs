@@ -78,7 +78,7 @@ impl Algo<State, Action> for ClosestPairSweepLine {
         let h2 = state.nearest.square_len();
         let p = state.points[state.right_index];
         while state.left_index < state.right_index
-            && Pair::new(state.points[state.left_index], p).square_len() > h2
+            && (state.points[state.left_index].x - p.x).abs() > h2
         {
             state.left_index += 1;
             state
