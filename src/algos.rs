@@ -2,6 +2,8 @@ pub mod closest_pair_dnc;
 pub mod closest_pair_sl;
 pub mod convex_hull_dnc;
 pub mod graham;
+pub mod graham_andrew;
+pub mod graham_common;
 pub mod shamos_hoey;
 
 use crate::common::Point;

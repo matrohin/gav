@@ -6,6 +6,7 @@ use crate::algos::closest_pair_dnc::{self, ClosestPairDivideAndConquer};
 use crate::algos::closest_pair_sl::{self, ClosestPairSweepLine};
 use crate::algos::convex_hull_dnc::{self, ConvexHullDivideAndConquer};
 use crate::algos::graham::{self, Graham};
+use crate::algos::graham_andrew::{self, GrahamAndrew};
 use crate::algos::shamos_hoey::{self, ShamosHoey};
 use crate::algos::Algo;
 use crate::common::*;
@@ -125,6 +126,7 @@ fn main() {
                     "closest_pair_sl",
                     "convex_hull_dnc",
                     "graham",
+                    "graham_andrew",
                     "shamos_hoey",
                 ])
                 .required(true)
@@ -166,6 +168,7 @@ fn main() {
                 points,
             )
         }
+        "graham_andrew" => run::<GrahamAndrew, graham_andrew::State, graham_andrew::Action>(points),
         "graham" => run::<Graham, graham::State, graham::Action>(points),
         "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(points),
         _ => panic!(),
