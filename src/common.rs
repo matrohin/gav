@@ -1,7 +1,7 @@
 use euclid::Point2D;
 
-pub const MAX_X: f32 = 30.0;
-pub const MAX_Y: f32 = 30.0;
+pub const MAX_X: f32 = 15.0;
+pub const MAX_Y: f32 = 15.0;
 
 pub type Point = Point2D<f32, f32>;
 

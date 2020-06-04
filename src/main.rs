@@ -43,9 +43,6 @@ where
     (states, actions)
 }
 
-const WIDTH: usize = 1000;
-const HEIGHT: usize = 1000;
-
 fn get_next_index(window: &Window, index: usize, max_index: usize) -> usize {
     if window.is_key_pressed(Key::Right, KeyRepeat::Yes) {
         std::cmp::min(index + 1, max_index)
@@ -60,14 +57,15 @@ fn get_next_index(window: &Window, index: usize, max_index: usize) -> usize {
     }
 }
 
-fn show<TAlgo, TState, TAction>(states: &Vec<TState>, actions: &Vec<TAction>)
+fn show<TAlgo, TState, TAction>(states: &Vec<TState>, actions: &Vec<TAction>, window_size: usize)
 where
     TAlgo: Algo<TState, TAction>,
     TState: Clone + std::fmt::Debug,
     TAction: Clone + std::fmt::Debug,
 {
     let title = "Geometry Algorithms Visualization";
-    let mut window = Window::new(title, WIDTH, HEIGHT, WindowOptions::default()).unwrap();
+    let mut window =
+        Window::new(title, window_size, window_size, WindowOptions::default()).unwrap();
     let mut index = std::usize::MAX;
     let size = window.get_size();
     let mut dt = DrawTarget::new(size.0 as i32, size.1 as i32);
@@ -102,14 +100,14 @@ where
     }
 }
 
-fn run<TAlgo, TState, TAction>(points: Vec<Point>)
+fn run<TAlgo, TState, TAction>(points: Vec<Point>, window_size: usize)
 where
     TAlgo: Algo<TState, TAction>,
     TState: Clone + std::fmt::Debug,
     TAction: Clone + std::fmt::Debug,
 {
     let (states, actions) = all_states::<TAlgo, TState, TAction>(points);
-    show::<TAlgo, TState, TAction>(&states, &actions);
+    show::<TAlgo, TState, TAction>(&states, &actions, window_size);
 }
 
 fn main() {
@@ -146,31 +144,46 @@ fn main() {
                 .default_value("50")
                 .validator(is_number),
         )
+        .arg(
+            Arg::with_name("window size")
+                .long("window_size")
+                .short("w")
+                .takes_value(true)
+                .default_value("1000")
+                .validator(is_number),
+        )
         .get_matches();
 
     let n = value_t!(matches, "number", usize).unwrap();
     let seed = value_t!(matches, "seed", u64).unwrap_or_else(|_| OsRng.next_u64());
+    let window_size = value_t!(matches, "window size", usize).unwrap();
 
     println!("Seed: {}", seed);
     let points = random_points(n, StdRng::seed_from_u64(seed));
 
     match matches.value_of("algo").unwrap() {
-        "closest_pair_dnc" => {
-            run::<ClosestPairDivideAndConquer, closest_pair_dnc::State, closest_pair_dnc::Action>(
-                points,
-            )
+        "closest_pair_dnc" => run::<
+            ClosestPairDivideAndConquer,
+            closest_pair_dnc::State,
+            closest_pair_dnc::Action,
+        >(points, window_size),
+        "closest_pair_sl" => run::<
+            ClosestPairSweepLine,
+            closest_pair_sl::State,
+            closest_pair_sl::Action,
+        >(points, window_size),
+        "convex_hull_dnc" => run::<
+            ConvexHullDivideAndConquer,
+            convex_hull_dnc::State,
+            convex_hull_dnc::Action,
+        >(points, window_size),
+        "graham_andrew" => {
+            run::<GrahamAndrew, graham_andrew::State, graham_andrew::Action>(points, window_size)
         }
-        "closest_pair_sl" => {
-            run::<ClosestPairSweepLine, closest_pair_sl::State, closest_pair_sl::Action>(points)
+        "graham" => run::<Graham, graham::State, graham::Action>(points, window_size),
+        "shamos_hoey" => {
+            run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(points, window_size)
         }
-        "convex_hull_dnc" => {
-            run::<ConvexHullDivideAndConquer, convex_hull_dnc::State, convex_hull_dnc::Action>(
-                points,
-            )
-        }
-        "graham_andrew" => run::<GrahamAndrew, graham_andrew::State, graham_andrew::Action>(points),
-        "graham" => run::<Graham, graham::State, graham::Action>(points),
-        "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(points),
         _ => panic!(),
     }
 }
