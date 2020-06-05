@@ -111,7 +111,7 @@ impl Algo<State, Action> for ClosestPairSweepLine {
             dc.draw_point(point, WHITE_COLOR);
         }
         if Pair::inf() != state.nearest {
-            dc.draw_line(&state.nearest.a, &state.nearest.b, YELLOW_COLOR);
+            dc.draw_line(&state.nearest.a, &state.nearest.b, BLUE_COLOR);
         }
     }
 

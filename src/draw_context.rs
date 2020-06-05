@@ -77,7 +77,7 @@ impl DrawContext {
             path,
             &Source::Solid(color),
             &StrokeStyle {
-                width: self.draw_width / 2.0,
+                width: self.draw_width / 1.5,
                 cap: LineCap::Round,
                 join: LineJoin::Miter,
                 ..StrokeStyle::default()

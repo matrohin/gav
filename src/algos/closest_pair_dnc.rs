@@ -147,7 +147,7 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
         match action {
             Action::NoAction => {}
             Action::Divide((borders, x)) => {
-                dc.draw_vertical_line(*x, BLUE_COLOR);
+                dc.draw_vertical_line(*x, YELLOW_COLOR);
                 dc.draw_borders(borders);
             }
             Action::Conquer((best, best_left, best_right, borders, points_borders)) => {
@@ -155,16 +155,16 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
                     points_borders.l.max(borders.l),
                     points_borders.r.min(borders.r),
                 ));
-                dc.draw_vertical_line(borders.l, BLUE_COLOR);
-                dc.draw_vertical_line(borders.r, BLUE_COLOR);
+                dc.draw_vertical_line(borders.l, YELLOW_COLOR);
+                dc.draw_vertical_line(borders.r, YELLOW_COLOR);
 
                 dc.draw_line(&best_left.a, &best_left.b, RED_COLOR);
                 dc.draw_line(&best_right.a, &best_right.b, RED_COLOR);
-                dc.draw_line(&best.a, &best.b, YELLOW_COLOR);
+                dc.draw_line(&best.a, &best.b, BLUE_COLOR);
             }
             Action::PrimitiveSolve((borders, best)) => {
                 dc.draw_borders(borders);
-                dc.draw_line(&best.a, &best.b, YELLOW_COLOR);
+                dc.draw_line(&best.a, &best.b, BLUE_COLOR);
             }
         }
     }

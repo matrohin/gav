@@ -203,7 +203,7 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
         match action {
             Action::NoAction => {}
             Action::Divide((borders, x)) => {
-                dc.draw_vertical_line(*x, BLUE_COLOR);
+                dc.draw_vertical_line(*x, YELLOW_COLOR);
                 dc.draw_borders(borders);
             }
             Action::Conquer((left, right, upper, lower)) => {
