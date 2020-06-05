@@ -4,9 +4,9 @@ use crate::draw_context::*;
 
 #[derive(Copy, Clone, Debug)]
 enum StackState {
-    ToLeftDivide,
-    ToRightDivide,
-    ToConquer(f32),
+    LeftDivide,
+    RightDivide,
+    Conquer(f32),
 }
 
 #[derive(Clone, Debug)]
@@ -24,7 +24,7 @@ pub enum Action {
     PrimitiveSolve((HorBorders, Pair)),
 }
 
-fn brute_force(borders: &IndexBorders, points: &Vec<Point>) -> Pair {
+fn brute_force(borders: &IndexBorders, points: &[Point]) -> Pair {
     let mut best = Pair::inf();
     for i in borders.l..borders.r {
         for j in borders.l..i {
@@ -49,7 +49,7 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
         State {
             points,
             result: Vec::new(),
-            stack: vec![(borders, StackState::ToLeftDivide)],
+            stack: vec![(borders, StackState::LeftDivide)],
         }
     }
 
@@ -59,7 +59,7 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
         }
         let (borders, cur) = state.stack.pop().unwrap();
         let action = match cur {
-            StackState::ToLeftDivide => {
+            StackState::LeftDivide => {
                 if borders.r - borders.l <= 3 {
                     let best = brute_force(&borders, &state.points);
                     let hor_borders = HorBorders::from_indexes(&state.points, &borders);
@@ -68,25 +68,25 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
                     Action::PrimitiveSolve((hor_borders, best))
                 } else {
                     let left_borders = borders.left();
-                    state.stack.push((borders, StackState::ToRightDivide));
-                    state.stack.push((left_borders, StackState::ToLeftDivide));
+                    state.stack.push((borders, StackState::RightDivide));
+                    state.stack.push((left_borders, StackState::LeftDivide));
                     Action::Divide((
                         HorBorders::from_indexes(&state.points, &left_borders),
                         state.points[borders.r - 1].x,
                     ))
                 }
             }
-            StackState::ToRightDivide => {
+            StackState::RightDivide => {
                 let right_borders = borders.right();
                 let midx = state.points[right_borders.l].x;
-                state.stack.push((borders, StackState::ToConquer(midx)));
-                state.stack.push((right_borders, StackState::ToLeftDivide));
+                state.stack.push((borders, StackState::Conquer(midx)));
+                state.stack.push((right_borders, StackState::LeftDivide));
                 Action::Divide((
                     HorBorders::new(midx, state.points[right_borders.r - 1].x),
                     state.points[borders.l].x,
                 ))
             }
-            StackState::ToConquer(midx) => {
+            StackState::Conquer(midx) => {
                 let right_best = state.result.pop().unwrap();
                 let left_best = state.result.pop().unwrap();
                 let mut best = if left_best.square_len() < right_best.square_len() {

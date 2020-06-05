@@ -4,9 +4,9 @@ use crate::draw_context::*;
 
 #[derive(Copy, Clone, Debug)]
 enum StackState {
-    ToLeftDivide,
-    ToRightDivide,
-    ToConquer,
+    LeftDivide,
+    RightDivide,
+    Conquer,
 }
 
 #[derive(Clone, Debug)]
@@ -34,7 +34,7 @@ fn cmp_by_rotation(left: &Point, right: &Point, mid: &Point) -> std::cmp::Orderi
     let left_up = left.y > mid.y;
     let right_up = right.y > mid.y;
     right_up.cmp(&left_up).then_with(|| {
-        if left.y == right.y && left.y == mid.y {
+        if eps_equal(right.y, mid.y) && eps_equal(left.y, mid.y) {
             (right.x > mid.x).cmp(&(left.x > mid.x))
         } else {
             let rot = -rotation(left, right, mid);
@@ -43,7 +43,7 @@ fn cmp_by_rotation(left: &Point, right: &Point, mid: &Point) -> std::cmp::Orderi
     })
 }
 
-fn brute_force(borders: &IndexBorders, points: &Vec<Point>) -> Vec<Point> {
+fn brute_force(borders: &IndexBorders, points: &[Point]) -> Vec<Point> {
     let mut res = Vec::new();
     let len = borders.r - borders.l;
     for i in borders.l..borders.r {
@@ -74,12 +74,7 @@ fn brute_force(borders: &IndexBorders, points: &Vec<Point>) -> Vec<Point> {
     res
 }
 
-fn find_tangent(
-    left: &Vec<Point>,
-    right: &Vec<Point>,
-    mut li: usize,
-    mut ri: usize,
-) -> (usize, usize) {
+fn find_tangent(left: &[Point], right: &[Point], mut li: usize, mut ri: usize) -> (usize, usize) {
     let is_convex = |a, b, c| rotation(a, b, c) < 0.;
     let mut done = false;
     while !done {
@@ -119,7 +114,7 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
         State {
             points,
             result: Vec::new(),
-            stack: vec![(borders, StackState::ToLeftDivide)],
+            stack: vec![(borders, StackState::LeftDivide)],
         }
     }
 
@@ -129,31 +124,31 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
         }
         let (borders, cur) = state.stack.pop().unwrap();
         let action = match cur {
-            StackState::ToLeftDivide => {
+            StackState::LeftDivide => {
                 if borders.r - borders.l <= 5 {
                     let r = brute_force(&borders, &state.points);
                     state.result.push(r.clone());
                     Action::PrimitiveSolve(r)
                 } else {
                     let left_borders = borders.left();
-                    state.stack.push((borders, StackState::ToRightDivide));
-                    state.stack.push((left_borders, StackState::ToLeftDivide));
+                    state.stack.push((borders, StackState::RightDivide));
+                    state.stack.push((left_borders, StackState::LeftDivide));
                     Action::Divide((
                         HorBorders::from_indexes(&state.points, &left_borders),
                         state.points[borders.r - 1].x,
                     ))
                 }
             }
-            StackState::ToRightDivide => {
+            StackState::RightDivide => {
                 let right_borders = borders.right();
-                state.stack.push((borders, StackState::ToConquer));
-                state.stack.push((right_borders, StackState::ToLeftDivide));
+                state.stack.push((borders, StackState::Conquer));
+                state.stack.push((right_borders, StackState::LeftDivide));
                 Action::Divide((
                     HorBorders::from_indexes(&state.points, &right_borders),
                     state.points[borders.l].x,
                 ))
             }
-            StackState::ToConquer => {
+            StackState::Conquer => {
                 let right = state.result.pop().unwrap();
                 let left = state.result.pop().unwrap();
                 let (leftmost_in_right, _) = right
@@ -219,7 +214,7 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
     }
 }
 
-fn draw_hull(dc: &mut DrawContext, x: &Vec<Point>) {
+fn draw_hull(dc: &mut DrawContext, x: &[Point]) {
     dc.draw_path(x, BLUE_COLOR);
     dc.draw_line(x.first().unwrap(), x.last().unwrap(), BLUE_COLOR);
 }

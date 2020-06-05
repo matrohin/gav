@@ -58,8 +58,8 @@ fn get_next_index(window: &Window, index: usize, max_index: usize) -> usize {
 }
 
 fn show<TAlgo, TState, TAction>(
-    states: &Vec<TState>,
-    actions: &Vec<TAction>,
+    states: &[TState],
+    actions: &[TAction],
     window_size: usize,
     draw_width: f32,
 ) where

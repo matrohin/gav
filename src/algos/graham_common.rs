@@ -25,7 +25,7 @@ where
         Action::RejectPoint(left.pop().unwrap())
     } else if result.len() < 2 {
         result.push(left.pop().unwrap());
-        Action::AcceptPoint(result.last().unwrap().clone())
+        Action::AcceptPoint(*result.last().unwrap())
     } else if !is_convex(
         &result[result.len() - 2],
         &result[result.len() - 1],
@@ -43,7 +43,7 @@ where
     }
 }
 
-pub fn draw_progress(dc: &mut DrawContext, left: &Vec<Point>, done: &Vec<Point>) {
+pub fn draw_progress(dc: &mut DrawContext, left: &[Point], done: &[Point]) {
     for point in left {
         dc.draw_point(point, WHITE_COLOR);
     }
@@ -55,7 +55,7 @@ pub fn draw_graham_action(dc: &mut DrawContext, action: &Action) {
         Action::NoAction => {}
         Action::AcceptPoint(p) => dc.draw_point(p, GREEN_COLOR),
         Action::RejectPoint(p) => dc.draw_point(p, RED_COLOR),
-        Action::AcceptLine((p1, p2, p3)) => dc.draw_path(&vec![*p1, *p2, *p3], GREEN_COLOR),
-        Action::RejectLine((p1, p2, p3)) => dc.draw_path(&vec![*p1, *p2, *p3], RED_COLOR),
+        Action::AcceptLine((p1, p2, p3)) => dc.draw_path(&[*p1, *p2, *p3], GREEN_COLOR),
+        Action::RejectLine((p1, p2, p3)) => dc.draw_path(&[*p1, *p2, *p3], RED_COLOR),
     }
 }

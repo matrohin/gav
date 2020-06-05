@@ -5,6 +5,10 @@ pub const MAX_Y: f32 = 15.0;
 
 pub type Point = Point2D<f32, f32>;
 
+pub fn eps_equal(a: f32, b: f32) -> bool {
+    (a - b).abs() < 1e-8
+}
+
 pub fn rotation(a: &Point, b: &Point, c: &Point) -> f32 {
     a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)
 }
@@ -80,7 +84,7 @@ impl HorBorders {
     pub fn new(l: f32, r: f32) -> Self {
         Self { l, r }
     }
-    pub fn from_indexes(points: &Vec<Point>, borders: &IndexBorders) -> Self {
+    pub fn from_indexes(points: &[Point], borders: &IndexBorders) -> Self {
         Self {
             l: points[borders.l].x,
             r: points[borders.r - 1].x,

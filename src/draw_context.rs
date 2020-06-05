@@ -93,7 +93,7 @@ impl DrawContext {
         self.draw_rpath(&pb.finish(), color);
     }
 
-    pub fn draw_path(self: &mut Self, points: &Vec<Point>, color: SolidSource) {
+    pub fn draw_path(self: &mut Self, points: &[Point], color: SolidSource) {
         if points.is_empty() {
             return;
         }

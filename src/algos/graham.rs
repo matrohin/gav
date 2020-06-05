@@ -24,7 +24,7 @@ impl Algo<State, Action> for Graham {
         points.swap(leftmost_idx, last_idx);
         points[..last_idx].sort_unstable_by(|a, b| rotation(&p0, a, b).partial_cmp(&0.).unwrap());
         State {
-            points: points.clone(),
+            points,
             hull: Vec::new(),
         }
     }

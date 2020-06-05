@@ -19,8 +19,7 @@ impl Segment {
         Segment { a, b }
     }
     fn get_y(&self, x: f32) -> f32 {
-        // TODO: use eps?
-        if self.a.x == self.b.x {
+        if eps_equal(self.a.x, self.b.x) {
             self.a.y
         } else {
             self.a.y + (self.b.y - self.a.y) * (x - self.a.x) / (self.b.x - self.a.x)
@@ -163,7 +162,7 @@ impl Algo<State, Action> for ShamosHoey {
         }
     }
     fn next_state(mut state: State) -> (State, Action) {
-        if state.events.is_empty() {
+        if Self::is_final(&state) {
             return (state, Action::NoAction);
         }
 
@@ -177,30 +176,20 @@ impl Algo<State, Action> for ShamosHoey {
 
         let (prev, next) = neighbors(&state.cur_segments, &cur_seg);
         let found = if cur_event.is_start {
-            if prev.is_some() && intersect_seg(prev.unwrap(), &cur_seg) {
-                Some((cur_seg, *prev.unwrap()))
-            } else if next.is_some() && intersect_seg(next.unwrap(), &cur_seg) {
-                Some((cur_seg, *next.unwrap()))
-            } else {
-                None
-            }
+            prev.filter(|s| intersect_seg(s, &cur_seg))
+                .or_else(|| next.filter(|s| intersect_seg(s, &cur_seg)))
+                .map(|s| (*s, cur_seg))
         } else {
-            if prev.is_some() && next.is_some() && intersect_seg(prev.unwrap(), next.unwrap()) {
-                Some((*prev.unwrap(), *next.unwrap()))
-            } else {
-                None
-            }
+            // can be replaced with zip call once it's stable
+            prev.and_then(|p| next.map(|n| (*p, *n)))
+                .filter(|(a, b)| intersect_seg(a, b))
         };
-        if let Some(found) = found {
-            state.events.clear();
-            state.result = Some(found);
-            state.cur_segments.clear();
-        }
+        state.result = found;
         (state, Action::Scan((cur_seg, found, cur_event.x)))
     }
 
     fn is_final(state: &State) -> bool {
-        state.events.is_empty()
+        state.result.is_some()
     }
 
     fn draw_state(dc: &mut DrawContext, state: &State) {
