@@ -109,10 +109,10 @@ impl DrawContext {
 
     pub fn fill_rect(self: &mut Self, lb: &Point, rt: &Point, color: SolidSource) {
         self.dt.fill_rect(
-            lb.x,
-            lb.y,
-            rt.x - lb.x,
-            rt.y - lb.y,
+            lb.x - self.draw_width / 2.0,
+            lb.y - self.draw_width / 2.0,
+            rt.x - lb.x + self.draw_width,
+            rt.y - lb.y + self.draw_width,
             &Source::Solid(color),
             &DrawOptions {
                 blend_mode: BlendMode::SrcOut,
