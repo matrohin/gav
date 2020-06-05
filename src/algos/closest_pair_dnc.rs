@@ -1,7 +1,6 @@
 use crate::algos::Algo;
 use crate::common::*;
-use crate::draw_utils::*;
-use raqote::DrawTarget;
+use crate::draw_context::*;
 
 #[derive(Copy, Clone, Debug)]
 enum StackState {
@@ -135,40 +134,37 @@ impl Algo<State, Action> for ClosestPairDivideAndConquer {
         state.stack.is_empty()
     }
 
-    fn draw_state(dt: &mut DrawTarget, state: &State) {
+    fn draw_state(dc: &mut DrawContext, state: &State) {
         for point in &state.points {
-            draw_point(dt, point, WHITE_COLOR);
+            dc.draw_point(point, WHITE_COLOR);
         }
         for line in &state.result {
-            draw_line(dt, &line.a, &line.b, GREEN_COLOR);
+            dc.draw_line(&line.a, &line.b, GREEN_COLOR);
         }
     }
 
-    fn draw_action(dt: &mut DrawTarget, action: &Action) {
+    fn draw_action(dc: &mut DrawContext, action: &Action) {
         match action {
             Action::NoAction => {}
             Action::Divide((borders, x)) => {
-                draw_vertical_line(dt, *x, BLUE_COLOR);
-                draw_borders(dt, borders);
+                dc.draw_vertical_line(*x, BLUE_COLOR);
+                dc.draw_borders(borders);
             }
             Action::Conquer((best, best_left, best_right, borders, points_borders)) => {
-                draw_borders(
-                    dt,
-                    &HorBorders::new(
-                        points_borders.l.max(borders.l),
-                        points_borders.r.min(borders.r),
-                    ),
-                );
-                draw_vertical_line(dt, borders.l, BLUE_COLOR);
-                draw_vertical_line(dt, borders.r, BLUE_COLOR);
+                dc.draw_borders(&HorBorders::new(
+                    points_borders.l.max(borders.l),
+                    points_borders.r.min(borders.r),
+                ));
+                dc.draw_vertical_line(borders.l, BLUE_COLOR);
+                dc.draw_vertical_line(borders.r, BLUE_COLOR);
 
-                draw_line(dt, &best_left.a, &best_left.b, RED_COLOR);
-                draw_line(dt, &best_right.a, &best_right.b, RED_COLOR);
-                draw_line(dt, &best.a, &best.b, YELLOW_COLOR);
+                dc.draw_line(&best_left.a, &best_left.b, RED_COLOR);
+                dc.draw_line(&best_right.a, &best_right.b, RED_COLOR);
+                dc.draw_line(&best.a, &best.b, YELLOW_COLOR);
             }
             Action::PrimitiveSolve((borders, best)) => {
-                draw_borders(dt, borders);
-                draw_line(dt, &best.a, &best.b, YELLOW_COLOR);
+                dc.draw_borders(borders);
+                dc.draw_line(&best.a, &best.b, YELLOW_COLOR);
             }
         }
     }

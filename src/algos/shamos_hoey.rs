@@ -1,7 +1,6 @@
 use crate::algos::Algo;
 use crate::common::*;
-use crate::draw_utils::*;
-use raqote::DrawTarget;
+use crate::draw_context::*;
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
 use std::ops::Bound;
@@ -204,28 +203,28 @@ impl Algo<State, Action> for ShamosHoey {
         state.events.is_empty()
     }
 
-    fn draw_state(dt: &mut DrawTarget, state: &State) {
+    fn draw_state(dc: &mut DrawContext, state: &State) {
         for seg in &state.segments {
-            draw_line(dt, &seg.a, &seg.b, WHITE_COLOR);
+            dc.draw_line(&seg.a, &seg.b, WHITE_COLOR);
         }
         for seg in &state.cur_segments {
-            draw_line(dt, &seg.a, &seg.b, BLUE_COLOR);
+            dc.draw_line(&seg.a, &seg.b, BLUE_COLOR);
         }
         if let Some((seg1, seg2)) = &state.result {
-            draw_line(dt, &seg1.a, &seg1.b, GREEN_COLOR);
-            draw_line(dt, &seg2.a, &seg2.b, GREEN_COLOR);
+            dc.draw_line(&seg1.a, &seg1.b, GREEN_COLOR);
+            dc.draw_line(&seg2.a, &seg2.b, GREEN_COLOR);
         }
     }
 
-    fn draw_action(dt: &mut DrawTarget, action: &Action) {
+    fn draw_action(dc: &mut DrawContext, action: &Action) {
         match action {
             Action::NoAction => {}
             Action::Scan((cur_seg, found, x)) => {
-                draw_vertical_line(dt, *x, BLUE_COLOR);
-                draw_line(dt, &cur_seg.a, &cur_seg.b, YELLOW_COLOR);
+                dc.draw_vertical_line(*x, BLUE_COLOR);
+                dc.draw_line(&cur_seg.a, &cur_seg.b, YELLOW_COLOR);
                 for (seg1, seg2) in found {
-                    draw_line(dt, &seg1.a, &seg1.b, RED_COLOR);
-                    draw_line(dt, &seg2.a, &seg2.b, RED_COLOR);
+                    dc.draw_line(&seg1.a, &seg1.b, RED_COLOR);
+                    dc.draw_line(&seg2.a, &seg2.b, RED_COLOR);
                 }
             }
         }

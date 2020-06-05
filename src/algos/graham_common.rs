@@ -1,6 +1,5 @@
 use crate::common::*;
-use crate::draw_utils::*;
-use raqote::DrawTarget;
+use crate::draw_context::*;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Action {
@@ -44,19 +43,19 @@ where
     }
 }
 
-pub fn draw_progress(dt: &mut DrawTarget, left: &Vec<Point>, done: &Vec<Point>) {
+pub fn draw_progress(dc: &mut DrawContext, left: &Vec<Point>, done: &Vec<Point>) {
     for point in left {
-        draw_point(dt, point, WHITE_COLOR);
+        dc.draw_point(point, WHITE_COLOR);
     }
-    draw_path(dt, done, BLUE_COLOR);
+    dc.draw_path(done, BLUE_COLOR);
 }
 
-pub fn draw_graham_action(dt: &mut DrawTarget, action: &Action) {
+pub fn draw_graham_action(dc: &mut DrawContext, action: &Action) {
     match action {
         Action::NoAction => {}
-        Action::AcceptPoint(p) => draw_point(dt, p, GREEN_COLOR),
-        Action::RejectPoint(p) => draw_point(dt, p, RED_COLOR),
-        Action::AcceptLine((p1, p2, p3)) => draw_path(dt, &vec![*p1, *p2, *p3], GREEN_COLOR),
-        Action::RejectLine((p1, p2, p3)) => draw_path(dt, &vec![*p1, *p2, *p3], RED_COLOR),
+        Action::AcceptPoint(p) => dc.draw_point(p, GREEN_COLOR),
+        Action::RejectPoint(p) => dc.draw_point(p, RED_COLOR),
+        Action::AcceptLine((p1, p2, p3)) => dc.draw_path(&vec![*p1, *p2, *p3], GREEN_COLOR),
+        Action::RejectLine((p1, p2, p3)) => dc.draw_path(&vec![*p1, *p2, *p3], RED_COLOR),
     }
 }

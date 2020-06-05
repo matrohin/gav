@@ -2,7 +2,7 @@ pub use crate::algos::graham_common::Action;
 use crate::algos::graham_common::{draw_graham_action, draw_progress, step};
 use crate::algos::Algo;
 use crate::common::*;
-use raqote::DrawTarget;
+use crate::draw_context::*;
 
 pub struct GrahamAndrew;
 
@@ -44,16 +44,16 @@ impl Algo<State, Action> for GrahamAndrew {
         state.left_upper.is_empty() && state.left_lower.is_empty()
     }
 
-    fn draw_state(dt: &mut DrawTarget, state: &State) {
+    fn draw_state(dc: &mut DrawContext, state: &State) {
         if !state.left_upper.is_empty() || state.lower.is_empty() {
-            draw_progress(dt, &state.left_upper, &state.upper);
+            draw_progress(dc, &state.left_upper, &state.upper);
         } else {
-            draw_progress(dt, &state.left_upper, &state.upper);
-            draw_progress(dt, &state.left_lower, &state.lower);
+            draw_progress(dc, &state.left_upper, &state.upper);
+            draw_progress(dc, &state.left_lower, &state.lower);
         };
     }
 
-    fn draw_action(dt: &mut DrawTarget, action: &Action) {
-        draw_graham_action(dt, action);
+    fn draw_action(dc: &mut DrawContext, action: &Action) {
+        draw_graham_action(dc, action);
     }
 }

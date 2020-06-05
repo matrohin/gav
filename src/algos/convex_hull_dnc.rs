@@ -1,7 +1,6 @@
 use crate::algos::Algo;
 use crate::common::*;
-use crate::draw_utils::*;
-use raqote::DrawTarget;
+use crate::draw_context::*;
 
 #[derive(Copy, Clone, Debug)]
 enum StackState {
@@ -191,36 +190,36 @@ impl Algo<State, Action> for ConvexHullDivideAndConquer {
         state.stack.is_empty()
     }
 
-    fn draw_state(dt: &mut DrawTarget, state: &State) {
+    fn draw_state(dc: &mut DrawContext, state: &State) {
         for point in &state.points {
-            draw_point(dt, point, WHITE_COLOR);
+            dc.draw_point(point, WHITE_COLOR);
         }
         for x in &state.result {
-            draw_hull(dt, x);
+            draw_hull(dc, x);
         }
     }
 
-    fn draw_action(dt: &mut DrawTarget, action: &Action) {
+    fn draw_action(dc: &mut DrawContext, action: &Action) {
         match action {
             Action::NoAction => {}
             Action::Divide((borders, x)) => {
-                draw_vertical_line(dt, *x, BLUE_COLOR);
-                draw_borders(dt, borders);
+                dc.draw_vertical_line(*x, BLUE_COLOR);
+                dc.draw_borders(borders);
             }
             Action::Conquer((left, right, upper, lower)) => {
-                draw_hull(dt, &left);
-                draw_hull(dt, &right);
-                draw_line(dt, &upper.a, &upper.b, GREEN_COLOR);
-                draw_line(dt, &lower.a, &lower.b, GREEN_COLOR);
+                draw_hull(dc, &left);
+                draw_hull(dc, &right);
+                dc.draw_line(&upper.a, &upper.b, GREEN_COLOR);
+                dc.draw_line(&lower.a, &lower.b, GREEN_COLOR);
             }
             Action::PrimitiveSolve(hull) => {
-                draw_hull(dt, &hull);
+                draw_hull(dc, &hull);
             }
         }
     }
 }
 
-fn draw_hull(dt: &mut DrawTarget, x: &Vec<Point>) {
-    draw_path(dt, x, BLUE_COLOR);
-    draw_line(dt, x.first().unwrap(), x.last().unwrap(), BLUE_COLOR);
+fn draw_hull(dc: &mut DrawContext, x: &Vec<Point>) {
+    dc.draw_path(x, BLUE_COLOR);
+    dc.draw_line(x.first().unwrap(), x.last().unwrap(), BLUE_COLOR);
 }

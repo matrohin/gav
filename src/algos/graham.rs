@@ -2,8 +2,7 @@ pub use crate::algos::graham_common::Action;
 use crate::algos::graham_common::{draw_graham_action, draw_progress, step};
 use crate::algos::Algo;
 use crate::common::*;
-use crate::draw_utils::*;
-use raqote::DrawTarget;
+use crate::draw_context::*;
 
 pub struct Graham;
 
@@ -44,14 +43,14 @@ impl Algo<State, Action> for Graham {
         state.points.is_empty()
     }
 
-    fn draw_state(dt: &mut DrawTarget, state: &State) {
-        draw_progress(dt, &state.points, &state.hull);
+    fn draw_state(dc: &mut DrawContext, state: &State) {
+        draw_progress(dc, &state.points, &state.hull);
         if Self::is_final(state) {
-            draw_line(dt, &state.hull[0], state.hull.last().unwrap(), BLUE_COLOR);
+            dc.draw_line(&state.hull[0], state.hull.last().unwrap(), BLUE_COLOR);
         }
     }
 
-    fn draw_action(dt: &mut DrawTarget, action: &Action) {
-        draw_graham_action(dt, action);
+    fn draw_action(dc: &mut DrawContext, action: &Action) {
+        draw_graham_action(dc, action);
     }
 }

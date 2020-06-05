@@ -7,7 +7,7 @@ pub mod graham_common;
 pub mod shamos_hoey;
 
 use crate::common::Point;
-use raqote::DrawTarget;
+use crate::draw_context::DrawContext;
 
 pub trait Algo<TState, TAction>
 where
@@ -18,6 +18,6 @@ where
     fn next_state(state: TState) -> (TState, TAction);
     fn is_final(state: &TState) -> bool;
 
-    fn draw_state(dt: &mut DrawTarget, state: &TState);
-    fn draw_action(dt: &mut DrawTarget, action: &TAction);
+    fn draw_state(dc: &mut DrawContext, state: &TState);
+    fn draw_action(dc: &mut DrawContext, action: &TAction);
 }

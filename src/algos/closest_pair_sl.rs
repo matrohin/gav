@@ -1,7 +1,6 @@
 use crate::algos::Algo;
 use crate::common::*;
-use crate::draw_utils::*;
-use raqote::DrawTarget;
+use crate::draw_context::*;
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
 use std::ops::Bound;
@@ -107,28 +106,28 @@ impl Algo<State, Action> for ClosestPairSweepLine {
         state.right_index >= state.points.len()
     }
 
-    fn draw_state(dt: &mut DrawTarget, state: &State) {
+    fn draw_state(dc: &mut DrawContext, state: &State) {
         for point in &state.points {
-            draw_point(dt, point, WHITE_COLOR);
+            dc.draw_point(point, WHITE_COLOR);
         }
         if Pair::inf() != state.nearest {
-            draw_line(dt, &state.nearest.a, &state.nearest.b, YELLOW_COLOR);
+            dc.draw_line(&state.nearest.a, &state.nearest.b, YELLOW_COLOR);
         }
     }
 
-    fn draw_action(dt: &mut DrawTarget, action: &Action) {
+    fn draw_action(dc: &mut DrawContext, action: &Action) {
         match action {
             Action::NoAction => {}
             Action::Scan((p, h)) => {
                 if *h != std::f32::INFINITY {
                     let lb = Point::new((p.x - h).max(0.), (p.y - h).max(0.));
                     let rt = Point::new(p.x, (p.y + h).min(MAX_Y));
-                    fill_rect(dt, &lb, &rt, GREEN_COLOR);
+                    dc.fill_rect(&lb, &rt, GREEN_COLOR);
                 } else {
-                    fill_part(dt, 0., p.x, GREEN_COLOR);
+                    dc.fill_part(0., p.x, GREEN_COLOR);
                 }
-                draw_vertical_line(dt, p.x, YELLOW_COLOR);
-                draw_point(dt, p, RED_COLOR);
+                dc.draw_vertical_line(p.x, YELLOW_COLOR);
+                dc.draw_point(p, RED_COLOR);
             }
         }
     }
