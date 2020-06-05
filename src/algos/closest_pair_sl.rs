@@ -76,13 +76,11 @@ impl Algo<State, Action> for ClosestPairSweepLine {
         }
         let h2 = state.nearest.square_len();
         let p = state.points[state.right_index];
-        while state.left_index < state.right_index
-            && (state.points[state.left_index].x - p.x).abs() > h2
-        {
-            state.left_index += 1;
+        while state.left_index < state.right_index && p.x - state.points[state.left_index].x > h2 {
             state
                 .current_set
                 .remove(&OrderedPoint::from(state.points[state.left_index]));
+            state.left_index += 1;
         }
 
         let h = h2.sqrt();
