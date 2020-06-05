@@ -15,7 +15,11 @@ cargo build --release
 
 Binary will be located at `./target/release/gav`
 
-## Command-line arguments
+## Running:
+
+You can use Left, Right, Home, End keyboard buttons to change current algorithm step.
+
+Command-line arguments:
 
 ```
 USAGE:
@@ -26,6 +30,7 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
+    -d, --draw_width <draw width>       [default: 0.1]
     -n, --number <number>               [default: 50]
     -s, --seed <seed>
     -w, --window_size <window size>     [default: 1000]
@@ -37,6 +42,6 @@ ARGS:
 
 ## Example
 
-Here is the result of running `gav graham -w 400 -n 20`:
+Here is the result of running `gav graham -w 400 -n 20` and `gav closest_pair_sl -w 400 -n 15 -d 0.5`:
 
-![Graham](<example/graham.gif>)
+![Graham](<example/graham.gif>) ![Closest pair sweep line](<example/closest_pair_sl.gif>)
