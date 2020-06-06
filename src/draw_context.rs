@@ -130,6 +130,6 @@ impl DrawContext {
     }
 
     pub fn draw_borders(self: &mut Self, borders: &HorBorders) {
-        self.fill_part(borders.l - 0.1, borders.r + 0.1, GREEN_COLOR);
+        self.fill_part(borders.l, borders.r, GREEN_COLOR);
     }
 }
