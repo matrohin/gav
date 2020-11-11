@@ -1,6 +1,6 @@
 [package]
 name = "gav"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Dmitry Matrokhin <matrokhin.d@gmail.com>"]
 edition = "2018"
 
@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 euclid = "0.20.7"
-minifb = "0.15.3"
+minifb = "0.19.1"
 raqote = "0.7.14"
 rand = "0.7.3"
 clap = "2.33.0"
