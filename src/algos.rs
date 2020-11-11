@@ -20,3 +20,17 @@ pub trait Algo {
     fn draw_state(dc: &mut DrawContext, state: &Self::State);
     fn draw_action(dc: &mut DrawContext, action: &Self::Action);
 }
+
+pub fn all_states<TAlgo>(points: Vec<Point>) -> (Vec<TAlgo::State>, Vec<TAlgo::Action>)
+where
+    TAlgo: Algo,
+{
+    let mut states = vec![TAlgo::first_state(points)];
+    let mut actions = Vec::new();
+    while !TAlgo::is_final(states.last().unwrap()) {
+        let (next, action) = TAlgo::next_state(states.last().unwrap().clone());
+        states.push(next);
+        actions.push(action);
+    }
+    (states, actions)
+}
