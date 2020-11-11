@@ -58,7 +58,10 @@ pub enum Action {
 
 pub struct ClosestPairSweepLine;
 
-impl Algo<State, Action> for ClosestPairSweepLine {
+impl Algo for ClosestPairSweepLine {
+    type State = State;
+    type Action = Action;
+
     fn first_state(mut points: Vec<Point>) -> State {
         points.sort_unstable_by(cmp_by_x);
         State {

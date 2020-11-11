@@ -14,7 +14,10 @@ pub struct State {
     lower: Vec<Point>,
 }
 
-impl Algo<State, Action> for GrahamAndrew {
+impl Algo for GrahamAndrew {
+    type State = State;
+    type Action = Action;
+
     fn first_state(mut points: Vec<Point>) -> State {
         points.sort_unstable_by(|a, b| cmp_by_x(b, a));
         State {

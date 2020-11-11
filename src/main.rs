@@ -2,12 +2,12 @@ mod algos;
 mod common;
 mod draw_context;
 
-use crate::algos::closest_pair_dnc::{self, ClosestPairDivideAndConquer};
-use crate::algos::closest_pair_sl::{self, ClosestPairSweepLine};
-use crate::algos::convex_hull_dnc::{self, ConvexHullDivideAndConquer};
-use crate::algos::graham::{self, Graham};
-use crate::algos::graham_andrew::{self, GrahamAndrew};
-use crate::algos::shamos_hoey::{self, ShamosHoey};
+use crate::algos::closest_pair_dnc::ClosestPairDivideAndConquer;
+use crate::algos::closest_pair_sl::ClosestPairSweepLine;
+use crate::algos::convex_hull_dnc::ConvexHullDivideAndConquer;
+use crate::algos::graham::Graham;
+use crate::algos::graham_andrew::GrahamAndrew;
+use crate::algos::shamos_hoey::ShamosHoey;
 use crate::algos::Algo;
 use crate::common::*;
 use crate::draw_context::DrawContext;
@@ -27,11 +27,9 @@ fn random_points(n: usize, mut rng: impl Rng) -> Vec<Point> {
     res
 }
 
-fn all_states<TAlgo, TState, TAction>(points: Vec<Point>) -> (Vec<TState>, Vec<TAction>)
+fn all_states<TAlgo>(points: Vec<Point>) -> (Vec<TAlgo::State>, Vec<TAlgo::Action>)
 where
-    TAlgo: Algo<TState, TAction>,
-    TState: Clone + std::fmt::Debug,
-    TAction: Clone + std::fmt::Debug,
+    TAlgo: Algo,
 {
     let mut states = vec![TAlgo::first_state(points)];
     let mut actions = Vec::new();
@@ -57,15 +55,13 @@ fn get_next_index(window: &Window, index: usize, max_index: usize) -> usize {
     }
 }
 
-fn show<TAlgo, TState, TAction>(
-    states: &[TState],
-    actions: &[TAction],
+fn show<TAlgo>(
+    states: &[TAlgo::State],
+    actions: &[TAlgo::Action],
     window_size: usize,
     draw_width: f32,
 ) where
-    TAlgo: Algo<TState, TAction>,
-    TState: Clone + std::fmt::Debug,
-    TAction: Clone + std::fmt::Debug,
+    TAlgo: Algo,
 {
     let title = "Geometry Algorithms Visualization";
     let mut window =
@@ -98,14 +94,12 @@ fn show<TAlgo, TState, TAction>(
     }
 }
 
-fn run<TAlgo, TState, TAction>(points: Vec<Point>, window_size: usize, draw_width: f32)
+fn run<TAlgo>(points: Vec<Point>, window_size: usize, draw_width: f32)
 where
-    TAlgo: Algo<TState, TAction>,
-    TState: Clone + std::fmt::Debug,
-    TAction: Clone + std::fmt::Debug,
+    TAlgo: Algo,
 {
-    let (states, actions) = all_states::<TAlgo, TState, TAction>(points);
-    show::<TAlgo, TState, TAction>(&states, &actions, window_size, draw_width);
+    let (states, actions) = all_states::<TAlgo>(points);
+    show::<TAlgo>(&states, &actions, window_size, draw_width);
 }
 
 fn main() {
@@ -167,32 +161,12 @@ fn main() {
     let points = random_points(n, StdRng::seed_from_u64(seed));
 
     match matches.value_of("algo").unwrap() {
-        "closest_pair_dnc" => run::<
-            ClosestPairDivideAndConquer,
-            closest_pair_dnc::State,
-            closest_pair_dnc::Action,
-        >(points, window_size, draw_width),
-        "closest_pair_sl" => run::<
-            ClosestPairSweepLine,
-            closest_pair_sl::State,
-            closest_pair_sl::Action,
-        >(points, window_size, draw_width),
-        "convex_hull_dnc" => run::<
-            ConvexHullDivideAndConquer,
-            convex_hull_dnc::State,
-            convex_hull_dnc::Action,
-        >(points, window_size, draw_width),
-        "graham_andrew" => run::<GrahamAndrew, graham_andrew::State, graham_andrew::Action>(
-            points,
-            window_size,
-            draw_width,
-        ),
-        "graham" => run::<Graham, graham::State, graham::Action>(points, window_size, draw_width),
-        "shamos_hoey" => run::<ShamosHoey, shamos_hoey::State, shamos_hoey::Action>(
-            points,
-            window_size,
-            draw_width,
-        ),
+        "closest_pair_dnc" => run::<ClosestPairDivideAndConquer>(points, window_size, draw_width),
+        "closest_pair_sl" => run::<ClosestPairSweepLine>(points, window_size, draw_width),
+        "convex_hull_dnc" => run::<ConvexHullDivideAndConquer>(points, window_size, draw_width),
+        "graham_andrew" => run::<GrahamAndrew>(points, window_size, draw_width),
+        "graham" => run::<Graham>(points, window_size, draw_width),
+        "shamos_hoey" => run::<ShamosHoey>(points, window_size, draw_width),
         _ => panic!(),
     }
 }

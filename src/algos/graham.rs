@@ -12,7 +12,10 @@ pub struct State {
     hull: Vec<Point>,
 }
 
-impl Algo<State, Action> for Graham {
+impl Algo for Graham {
+    type State = State;
+    type Action = Action;
+
     fn first_state(mut points: Vec<Point>) -> State {
         let (leftmost_idx, p0) = points
             .iter()

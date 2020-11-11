@@ -39,7 +39,10 @@ fn brute_force(borders: &IndexBorders, points: &[Point]) -> Pair {
 
 pub struct ClosestPairDivideAndConquer;
 
-impl Algo<State, Action> for ClosestPairDivideAndConquer {
+impl Algo for ClosestPairDivideAndConquer {
+    type State = State;
+    type Action = Action;
+
     fn first_state(mut points: Vec<Point>) -> State {
         points.sort_unstable_by(cmp_by_x);
         let borders = IndexBorders {

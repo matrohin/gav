@@ -104,7 +104,10 @@ fn overflowing_range(i: usize, j: usize, l: usize) -> impl Iterator<Item = usize
 
 pub struct ConvexHullDivideAndConquer;
 
-impl Algo<State, Action> for ConvexHullDivideAndConquer {
+impl Algo for ConvexHullDivideAndConquer {
+    type State = State;
+    type Action = Action;
+
     fn first_state(mut points: Vec<Point>) -> State {
         points.sort_unstable_by(cmp_by_x);
         let borders = IndexBorders {

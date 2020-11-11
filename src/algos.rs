@@ -9,15 +9,14 @@ pub mod shamos_hoey;
 use crate::common::Point;
 use crate::draw_context::DrawContext;
 
-pub trait Algo<TState, TAction>
-where
-    TState: Clone + std::fmt::Debug,
-    TAction: Clone + std::fmt::Debug,
-{
-    fn first_state(points: Vec<Point>) -> TState;
-    fn next_state(state: TState) -> (TState, TAction);
-    fn is_final(state: &TState) -> bool;
+pub trait Algo {
+    type State: Clone + std::fmt::Debug;
+    type Action: Clone + std::fmt::Debug;
 
-    fn draw_state(dc: &mut DrawContext, state: &TState);
-    fn draw_action(dc: &mut DrawContext, action: &TAction);
+    fn first_state(points: Vec<Point>) -> Self::State;
+    fn next_state(state: Self::State) -> (Self::State, Self::Action);
+    fn is_final(state: &Self::State) -> bool;
+
+    fn draw_state(dc: &mut DrawContext, state: &Self::State);
+    fn draw_action(dc: &mut DrawContext, action: &Self::Action);
 }

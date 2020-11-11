@@ -123,7 +123,10 @@ fn neighbors<'a>(
 
 pub struct ShamosHoey;
 
-impl Algo<State, Action> for ShamosHoey {
+impl Algo for ShamosHoey {
+    type State = State;
+    type Action = Action;
+
     fn first_state(mut points: Vec<Point>) -> State {
         points.sort_unstable_by(|a, b| a.x.partial_cmp(&b.x).unwrap());
         for i in (0..points.len()).step_by(2) {
