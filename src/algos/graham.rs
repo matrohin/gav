@@ -22,7 +22,13 @@ impl Algo<State, Action> for Graham {
             .unwrap();
         let last_idx = points.len() - 1;
         points.swap(leftmost_idx, last_idx);
-        points[..last_idx].sort_unstable_by(|a, b| rotation(&p0, a, b).partial_cmp(&0.).unwrap());
+        points[..last_idx].sort_unstable_by(|a, b| {
+            rotation(&p0, a, b).partial_cmp(&0.).unwrap().then_with(|| {
+                let dist_a = (p0 - *a).length();
+                let dist_b = (p0 - *b).length();
+                dist_b.partial_cmp(&dist_a).unwrap()
+            })
+        });
         State {
             points,
             hull: Vec::new(),
@@ -52,5 +58,31 @@ impl Algo<State, Action> for Graham {
 
     fn draw_action(dc: &mut DrawContext, action: &Action) {
         draw_graham_action(dc, action);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn graham_sorts_by_distance() {
+        let state = Graham::first_state(vec![
+            Point::new(1., 1.),
+            Point::new(1., 2.),
+            Point::new(2., 1.),
+            Point::new(1., 3.),
+            Point::new(3., 1.),
+        ]);
+        assert_eq!(
+            vec![
+                Point::new(1., 3.),
+                Point::new(1., 2.),
+                Point::new(3., 1.),
+                Point::new(2., 1.),
+                Point::new(1., 1.),
+            ],
+            state.points
+        );
     }
 }
